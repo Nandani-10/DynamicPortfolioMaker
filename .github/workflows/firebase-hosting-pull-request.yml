@@ -84,6 +84,19 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
+      - name: Diagnose Cloud Functions access
+        # `firebase deploy` reports Cloud Functions problems as a bare
+        # "Failed to list functions", which hides whether the cause is billing,
+        # a disabled API, or IAM. Re-running the same call with --debug surfaces
+        # the raw Google API response. Diagnostic only — never fails the job.
+        continue-on-error: true
+        run: |
+          firebase functions:list \
+            --project dynamicportfolio-43345 \
+            --debug 2>&1 \
+            | grep -Ei 'error|billing|denied|disabled|not enabled|SERVICE_DISABLED|403|404|reason|activation|<HTTP' \
+            | head -40 || true
+
       - name: Deploy preview channel
         # google-github-actions/auth already exported GOOGLE_APPLICATION_CREDENTIALS,
         # so the CLI picks up the service account without writing our own key file.
