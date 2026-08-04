@@ -32,20 +32,43 @@ jobs:
           cache: 'npm'
 
       - name: Verify required secrets
+        # Checks every secret the app needs, not just the ones the deploy step
+        # would fail on: a missing NEXT_PUBLIC_* value builds fine and then
+        # breaks auth silently at runtime, so catch it here instead.
         env:
-          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-          CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUD_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUD_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
         run: |
-          for v in SERVICE_ACCOUNT API_KEY CLOUD_NAME CLOUD_KEY CLOUD_SECRET; do
-            if [ -z "${!v}" ]; then
-              echo "::error::Repository secret for $v is EMPTY — see the Deployment section of README.md"
-              exit 1
-            fi
+          missing=()
+          for v in \
+            FIREBASE_SERVICE_ACCOUNT \
+            NEXT_PUBLIC_FIREBASE_API_KEY \
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN \
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID \
+            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET \
+            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID \
+            NEXT_PUBLIC_FIREBASE_APP_ID \
+            CLOUDINARY_CLOUD_NAME \
+            CLOUDINARY_API_KEY \
+            CLOUDINARY_API_SECRET
+          do
+            if [ -z "${!v}" ]; then missing+=("$v"); fi
           done
-          echo "All required secrets are present."
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::${#missing[@]} repository secret(s) not set: ${missing[*]}"
+            echo "Add them under Settings → Secrets and variables → Actions."
+            echo "See the Deployment section of README.md for where each value comes from."
+            exit 1
+          fi
+          echo "All 10 required secrets are present."
 
       - name: Install dependencies
         run: npm ci

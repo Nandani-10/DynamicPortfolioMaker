@@ -70,7 +70,7 @@ manual/local `firebase deploy` step in the intended workflow.
 2. In `.firebaserc`, replace `REPLACE_WITH_YOUR_FIREBASE_PROJECT_ID` with
    your actual Firebase project ID.
 3. In your GitHub repo → **Settings → Secrets and variables → Actions**,
-   add these 9 repository secrets:
+   add these 10 repository secrets:
 
    | Secret | Where it comes from |
    | --- | --- |
