@@ -1,0 +1,103 @@
+name: Deploy to Firebase (preview)
+
+# Deploys every pull request to a temporary Firebase Hosting preview channel
+# so changes can be reviewed live before merging. Part of the GitHub
+# Actions-only deployment path — no manual/local `firebase deploy` step.
+#
+# Unlike the live workflow this deliberately does NOT deploy Firestore rules
+# or indexes: those are project-wide, so a PR must not be able to change the
+# rules that production traffic runs under.
+on:
+  pull_request:
+
+jobs:
+  deploy-preview:
+    name: Build & Deploy Preview
+    # Forks don't get access to secrets, so skip rather than fail confusingly.
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Verify required secrets
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+          NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
+        run: |
+          missing=()
+          for v in \
+            FIREBASE_SERVICE_ACCOUNT \
+            NEXT_PUBLIC_FIREBASE_API_KEY \
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN \
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID \
+            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET \
+            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID \
+            NEXT_PUBLIC_FIREBASE_APP_ID \
+            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME \
+            NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+          do
+            if [ -z "${!v}" ]; then missing+=("$v"); fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::${#missing[@]} repository secret(s) not set: ${missing[*]}"
+            echo "Add them under Settings → Secrets and variables → Actions."
+            echo "See the Deployment section of README.md for where each value comes from."
+            exit 1
+          fi
+          echo "All 9 required secrets are present."
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build static site
+        # NEXT_PUBLIC_* values are inlined at build time, so they must be set
+        # here rather than on the deploy step.
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+          NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy preview channel
+        # google-github-actions/auth already exported GOOGLE_APPLICATION_CREDENTIALS,
+        # so the CLI picks up the service account without writing our own key file.
+        run: |
+          firebase hosting:channel:deploy "pr-${{ github.event.number }}" \
+            --expires 7d \
+            --non-interactive \
+            --project dynamicportfolio-43345
