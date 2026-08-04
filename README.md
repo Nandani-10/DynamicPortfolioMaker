@@ -88,11 +88,19 @@ manual/local `firebase deploy` step in the intended workflow.
    The Hosting project/site the deploy targets comes from `.firebaserc` and
    `firebase.json`, so no separate project-ID secret is needed.
 4. Push to `main` — `.github/workflows/firebase-hosting-merge.yml` builds
-   the app and deploys it to the Firebase Hosting **live** channel.
-5. Every pull request automatically gets a temporary **preview** deploy via
-   `.github/workflows/firebase-hosting-pull-request.yml`.
+   the app and runs `firebase deploy --only hosting,firestore:rules,firestore:indexes`,
+   so your security rules ship together with the site.
+5. Every pull request automatically gets a temporary **preview channel**
+   deploy via `.github/workflows/firebase-hosting-pull-request.yml`. Preview
+   deploys intentionally skip Firestore rules/indexes, since those are
+   project-wide and shouldn't be changed by an unmerged PR.
 6. `.github/workflows/ci.yml` runs lint + build on every push/PR as a
    sanity check.
+
+> **Note:** this app server-renders (`/[username]` and the Cloudinary signing
+> route), so Firebase Hosting serves it through Cloud Functions/Cloud Run.
+> That requires the Firebase **Blaze** (pay-as-you-go) plan — the free Spark
+> plan can only serve static files and the deploy will fail on it.
 
 ## Project structure
 

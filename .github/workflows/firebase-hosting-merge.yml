@@ -1,8 +1,8 @@
-name: Deploy to Firebase Hosting (live)
+name: Deploy to Firebase (live)
 
-# Sole deployment path for this app: pushes to main build the Next.js app
-# and deploy it to the Firebase Hosting live channel via the official
-# Firebase GitHub Action. There is no manual/local `firebase deploy` step.
+# Sole deployment path for this app: pushes to main build the Next.js app and
+# deploy Hosting + Firestore rules/indexes via the Firebase CLI, authenticated
+# with a service account. There is no manual/local `firebase deploy` step.
 on:
   push:
     branches:
@@ -10,25 +10,62 @@ on:
 
 jobs:
   deploy:
+    name: Build & Deploy
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: npm
+          node-version: '22'
+          cache: 'npm'
 
-      - run: npm ci
+      - name: Verify required secrets
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUD_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUD_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        run: |
+          for v in SERVICE_ACCOUNT API_KEY CLOUD_NAME CLOUD_KEY CLOUD_SECRET; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Repository secret for $v is EMPTY — see the Deployment section of README.md"
+              exit 1
+            fi
+          done
+          echo "All required secrets are present."
 
-      - name: Build and deploy
-        uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          channelId: live
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Hosting and Firestore rules
+        # google-github-actions/auth already exported GOOGLE_APPLICATION_CREDENTIALS,
+        # so the CLI picks up the service account without writing our own key file.
+        run: |
+          firebase experiments:enable webframeworks
+          firebase deploy \
+            --only hosting,firestore:rules,firestore:indexes \
+            --non-interactive \
+            --force \
+            --project dynamicportfolio-43345
         env:
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
           NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
