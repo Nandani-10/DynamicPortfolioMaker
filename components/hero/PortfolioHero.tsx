@@ -80,7 +80,7 @@ export function PortfolioHero({
       />
 
       {hero.bannerImage && (
-        <motion.div className="absolute inset-x-0 top-0 h-64 sm:h-80" style={{ y: bannerY }}>
+        <motion.div className="absolute inset-x-0 top-0 z-[1] h-64 sm:h-80" style={{ y: bannerY }}>
           <Image
             src={hero.bannerImage}
             alt=""
@@ -93,7 +93,7 @@ export function PortfolioHero({
         </motion.div>
       )}
 
-      <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-6 px-6 py-24 text-center">
+      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-6 px-6 py-24 text-center">
         {hero.profileImage && (
           <motion.div
             initial={{ opacity: 0, scale: 0.7, y: -20 }}
@@ -212,7 +212,7 @@ export function PortfolioHero({
       <motion.div
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="relative mx-auto mb-8 flex flex-col items-center gap-1 text-[var(--text-muted)]"
+        className="relative z-10 mx-auto mb-8 flex flex-col items-center gap-1 text-[var(--text-muted)]"
       >
         <span className="text-xs uppercase tracking-widest">Scroll</span>
         <ChevronDown className="h-4 w-4" />
