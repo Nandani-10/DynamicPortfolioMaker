@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "yashdynamicportfolio-43345",
     "source": ".",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
   },
