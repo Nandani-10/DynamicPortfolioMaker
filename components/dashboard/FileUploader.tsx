@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { FileText, Loader2, Trash2, UploadCloud } from "lucide-react";
 import { uploadToCloudinary } from "@/lib/cloudinary/client";
-import type { UploadFolder } from "@/lib/cloudinary/server";
+import type { UploadFolder } from "@/lib/cloudinary/folders";
 
 interface FileUploaderProps {
   value?: string;

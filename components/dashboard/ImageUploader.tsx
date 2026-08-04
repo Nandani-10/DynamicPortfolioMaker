@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { uploadToCloudinary } from "@/lib/cloudinary/client";
-import type { UploadFolder } from "@/lib/cloudinary/server";
+import type { UploadFolder } from "@/lib/cloudinary/folders";
 
 interface ImageUploaderProps {
   value?: string;
