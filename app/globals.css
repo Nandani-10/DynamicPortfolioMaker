@@ -170,6 +170,50 @@ body {
   }
 }
 
+/* Twin gradient underlines that grow from 0 to full width on hover — one
+   above the text, one below. Triggered by hovering the element itself or any
+   ancestor marked .underline-reveal-host (so a whole row can drive it). */
+.underline-reveal {
+  position: relative;
+  display: inline-block;
+}
+
+.underline-reveal::before,
+.underline-reveal::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-1),
+    var(--accent-2) 50%,
+    var(--accent-3)
+  );
+  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.underline-reveal::before {
+  top: -5px;
+}
+
+.underline-reveal::after {
+  bottom: -5px;
+}
+
+.underline-reveal:hover::before,
+.underline-reveal:hover::after,
+.underline-reveal:focus-visible::before,
+.underline-reveal:focus-visible::after,
+.underline-reveal-host:hover .underline-reveal::before,
+.underline-reveal-host:hover .underline-reveal::after,
+.underline-reveal-host:focus-within .underline-reveal::before,
+.underline-reveal-host:focus-within .underline-reveal::after {
+  width: 100%;
+}
+
 @keyframes float-y {
   0%,
   100% {

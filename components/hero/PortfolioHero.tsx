@@ -16,7 +16,7 @@ import {
   FaGlobe,
 } from "react-icons/fa6";
 import { GradientOrbs } from "@/components/effects/GradientOrbs";
-import { ParticleBackground } from "@/components/hero/ParticleBackground";
+import { WaterDropGrid } from "@/components/hero/WaterDropGrid";
 import { Button } from "@/components/ui/Button";
 import type { HeroContent, SocialLinks } from "@/types/portfolio";
 
@@ -48,11 +48,9 @@ const NAME_LETTER: Variants = {
 export function PortfolioHero({
   hero,
   social,
-  accentColor,
 }: {
   hero: HeroContent;
   social: SocialLinks;
-  accentColor: string;
 }) {
   const socialEntries = (Object.keys(SOCIAL_ICONS) as (keyof SocialLinks)[]).filter(
     (key) => social[key]
@@ -68,7 +66,7 @@ export function PortfolioHero({
   return (
     <section ref={sectionRef} className="relative flex min-h-screen flex-col overflow-hidden">
       <GradientOrbs />
-      <ParticleBackground accentColor={accentColor} />
+      <WaterDropGrid />
 
       <span
         aria-hidden
