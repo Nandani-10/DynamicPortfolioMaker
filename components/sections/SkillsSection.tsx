@@ -40,8 +40,11 @@ export function SkillsSection({ items }: { items: SkillItem[] }) {
             <StaggerGroup className="space-y-4">
               {skills.map((skill) => (
                 <StaggerItem key={skill.id}>
-                  <div className="mb-1.5 flex items-center justify-between text-sm">
-                    <span>{skill.name}</span>
+                  <div
+                    tabIndex={0}
+                    className="underline-reveal-host mb-1.5 flex items-center justify-between text-sm outline-none"
+                  >
+                    <span className="underline-reveal">{skill.name}</span>
                     <span className="text-[var(--text-muted)]">{skill.level}%</span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--surface-alt)]">

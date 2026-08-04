@@ -5,9 +5,16 @@ import { Calendar, Mail, MapPin, Phone, Send } from "lucide-react";
 import { SectionHeading } from "@/components/sections/SectionHeading";
 import { ScrollReveal } from "@/components/effects/ScrollReveal";
 import { Button } from "@/components/ui/Button";
+import { ParticleRing } from "@/components/effects/ParticleRing";
 import type { ContactContent } from "@/types/portfolio";
 
-export function ContactSection({ contact }: { contact: ContactContent }) {
+export function ContactSection({
+  contact,
+  ringPalette,
+}: {
+  contact: ContactContent;
+  ringPalette: string[];
+}) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -26,7 +33,14 @@ export function ContactSection({ contact }: { contact: ContactContent }) {
   }
 
   return (
-    <section id="contact" className="mx-auto max-w-4xl px-6 py-24">
+    <section id="contact" className="relative overflow-hidden px-6 py-24">
+      {/* 3D particle ring sits behind the form, letting the section close the
+          page on the same note the hero opened it. */}
+      <ParticleRing
+        palette={ringPalette}
+        className="pointer-events-none absolute inset-0 opacity-70"
+      />
+      <div className="relative mx-auto max-w-4xl">
       <SectionHeading
         eyebrow="Let's talk"
         title="Contact"
@@ -114,6 +128,7 @@ export function ContactSection({ contact }: { contact: ContactContent }) {
             </form>
           </ScrollReveal>
         )}
+        </div>
       </div>
     </section>
   );

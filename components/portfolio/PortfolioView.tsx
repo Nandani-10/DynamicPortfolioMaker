@@ -53,11 +53,16 @@ export function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
     );
   }
 
-  const accentColor = resolveThemeColors(
+  const themeColors = resolveThemeColors(
     portfolio.theme.preset,
     portfolio.theme.mode === "dark" ? "dark" : "light",
     portfolio.theme.accentColor
-  ).accent2;
+  );
+  const ringPalette = [
+    themeColors.accent1,
+    themeColors.accent2,
+    themeColors.accent3,
+  ];
 
   return (
     <PortfolioThemeRoot theme={portfolio.theme}>
@@ -69,7 +74,7 @@ export function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
       )}
       <div id="top">
         <PublicNav name={portfolio.hero.name} links={NAV_LINKS} />
-        <PortfolioHero hero={portfolio.hero} social={portfolio.social} accentColor={accentColor} />
+        <PortfolioHero hero={portfolio.hero} social={portfolio.social} />
         <AboutSection about={portfolio.about} />
         <EducationSection items={portfolio.education} />
         <ExperienceSection items={portfolio.experience} />
@@ -81,7 +86,7 @@ export function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
         <OpenSourceSection items={portfolio.openSource} />
         <BlogsSection items={portfolio.blogs} />
         <TestimonialsSection items={portfolio.testimonials} />
-        <ContactSection contact={portfolio.contact} />
+        <ContactSection contact={portfolio.contact} ringPalette={ringPalette} />
         <PortfolioFooter hero={portfolio.hero} />
       </div>
     </PortfolioThemeRoot>
