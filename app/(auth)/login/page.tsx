@@ -6,9 +6,10 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/Button";
 import { GradientOrbs } from "@/components/effects/GradientOrbs";
 import { PageFadeIn } from "@/components/effects/PageFadeIn";
+import { describeAuthError } from "@/lib/auth-errors";
 
 export default function LoginPage() {
-  const { user, profile, loading, signInWithGoogle } = useAuth();
+  const { user, profile, loading, signInWithGoogle, redirectError } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
@@ -21,10 +22,13 @@ export default function LoginPage() {
     setError(null);
     try {
       await signInWithGoogle();
-    } catch {
-      setError("Sign-in was cancelled or failed. Please try again.");
+    } catch (err) {
+      setError(describeAuthError(err));
     }
   }
+
+  const visibleError =
+    error ?? (redirectError ? describeAuthError(redirectError) : null);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--bg)] px-6 text-[var(--text)]">
@@ -40,7 +44,11 @@ export default function LoginPage() {
           <Button onClick={handleSignIn} disabled={loading} className="w-full">
             Continue with Google
           </Button>
-          {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+          {visibleError && (
+            <p role="alert" className="mt-4 text-sm text-red-400">
+              {visibleError}
+            </p>
+          )}
         </div>
       </PageFadeIn>
     </div>

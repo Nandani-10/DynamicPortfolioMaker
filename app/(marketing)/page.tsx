@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Palette, Share2, ShieldCheck, Wand2 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { ScrollReveal, StaggerGroup, StaggerItem } from "@/components/effects/ScrollReveal";
 import { GradientOrbs } from "@/components/effects/GradientOrbs";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { describeAuthError } from "@/lib/auth-errors";
 
 const FEATURES = [
   {
@@ -37,8 +38,9 @@ const FEATURES = [
 ];
 
 export default function MarketingHome() {
-  const { user, profile, loading, signInWithGoogle } = useAuth();
+  const { user, profile, loading, signInWithGoogle, redirectError } = useAuth();
   const router = useRouter();
+  const [signInError, setSignInError] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading || !user) return;
@@ -46,12 +48,16 @@ export default function MarketingHome() {
   }, [loading, user, profile, router]);
 
   async function handleGetStarted() {
+    setSignInError(null);
     try {
       await signInWithGoogle();
-    } catch {
-      // user closed the popup or auth failed — no-op, they can retry
+    } catch (error) {
+      setSignInError(describeAuthError(error));
     }
   }
+
+  const visibleError =
+    signInError ?? (redirectError ? describeAuthError(redirectError) : null);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[var(--bg)] text-[var(--text)]">
@@ -92,6 +98,15 @@ export default function MarketingHome() {
             </Button>
           </div>
         </ScrollReveal>
+
+        {visibleError && (
+          <p
+            role="alert"
+            className="max-w-xl rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500"
+          >
+            {visibleError}
+          </p>
+        )}
       </section>
 
       <section id="features" className="relative mx-auto max-w-6xl px-6 pb-28">
