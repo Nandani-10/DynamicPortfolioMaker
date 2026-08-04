@@ -3,14 +3,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { animate, stagger } from "animejs";
 
-const GAP = 28;
-const RIPPLE_THROTTLE_MS = 220;
+const GAP = 32;
+const RIPPLE_THROTTLE_MS = 260;
+const BASE_OPACITY = 0.1;
 
 /**
- * Water-drop hero background: a grid of dots that ripples outward from
- * wherever the pointer moves, plus a slow idle ripple so the hero still
- * breathes when nobody is interacting. Powered by anime.js grid staggering,
- * where `from` is the index the wave originates at.
+ * Water-drop hero background: a dot grid that ripples outward from wherever
+ * the pointer moves, using anime.js grid staggering with `from` set to the
+ * dot under the cursor.
+ *
+ * Tuned to stay in the background rather than compete with the hero: a single
+ * muted colour instead of the theme accents, low contrast, and a radial mask
+ * that fades the grid out behind the name and intro. The ripple is meant to
+ * be noticed on the second glance, not the first.
  */
 export function WaterDropGrid() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -51,14 +56,14 @@ export function WaterDropGrid() {
 
       animate(dots, {
         scale: [
-          { to: 2.4, ease: "outSine", duration: 190 },
-          { to: 1, ease: "inOutQuad", duration: 760 },
+          { to: 1.7, ease: "outSine", duration: 240 },
+          { to: 1, ease: "inOutQuad", duration: 900 },
         ],
         opacity: [
-          { to: 0.85, ease: "outSine", duration: 190 },
-          { to: 0.22, ease: "inOutQuad", duration: 760 },
+          { to: 0.34, ease: "outSine", duration: 240 },
+          { to: BASE_OPACITY, ease: "inOutQuad", duration: 900 },
         ],
-        delay: stagger(58, {
+        delay: stagger(52, {
           grid: [grid.cols, grid.rows],
           from: index,
         }),
@@ -78,18 +83,24 @@ export function WaterDropGrid() {
     ripple(row * grid.cols + col);
   }
 
-  // Idle ripples so the hero animates before the visitor touches anything.
+  // Occasional idle ripple so the grid isn't inert before anyone interacts,
+  // spaced out enough that it reads as ambient rather than as motion demanding
+  // attention.
   useEffect(() => {
     const total = grid.cols * grid.rows;
     if (total === 0) return;
     const id = window.setInterval(() => {
-      if (Date.now() - lastRippleAt.current < 2500) return;
+      if (Date.now() - lastRippleAt.current < 5000) return;
       ripple(Math.floor(Math.random() * total));
-    }, 3200);
+    }, 6500);
     return () => window.clearInterval(id);
   }, [grid.cols, grid.rows, ripple]);
 
   const total = grid.cols * grid.rows;
+  // Keeps the grid off the headline: fully transparent through the middle of
+  // the hero, easing back in toward the edges.
+  const fadeMask =
+    "radial-gradient(ellipse 62% 52% at 50% 44%, transparent 10%, black 78%)";
 
   return (
     <div
@@ -103,6 +114,8 @@ export function WaterDropGrid() {
         gridTemplateColumns: `repeat(${grid.cols}, 1fr)`,
         gridTemplateRows: `repeat(${grid.rows}, 1fr)`,
         placeItems: "center",
+        maskImage: fadeMask,
+        WebkitMaskImage: fadeMask,
       }}
     >
       {Array.from({ length: total }, (_, i) => (
@@ -110,15 +123,10 @@ export function WaterDropGrid() {
           key={i}
           className="water-dot rounded-full"
           style={{
-            width: 4,
-            height: 4,
-            opacity: 0.22,
-            background:
-              i % 3 === 0
-                ? "var(--accent-2)"
-                : i % 3 === 1
-                ? "var(--accent-3)"
-                : "var(--accent-1)",
+            width: 3,
+            height: 3,
+            opacity: BASE_OPACITY,
+            background: "var(--text-muted)",
           }}
         />
       ))}
