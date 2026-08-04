@@ -97,7 +97,7 @@ export function WaterDropGrid() {
       aria-hidden
       onPointerMove={handlePointerMove}
       onPointerDown={handlePointerMove}
-      className="absolute inset-0 overflow-hidden"
+      className="absolute inset-0 z-0 overflow-hidden"
       style={{
         display: "grid",
         gridTemplateColumns: `repeat(${grid.cols}, 1fr)`,

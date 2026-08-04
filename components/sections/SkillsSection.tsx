@@ -6,13 +6,20 @@ import { StaggerGroup, StaggerItem } from "@/components/effects/ScrollReveal";
 import type { SkillCategory, SkillItem } from "@/types/portfolio";
 
 const CATEGORY_LABELS: Record<SkillCategory, string> = {
-  language: "Languages",
+  language: "Programming Languages",
   frontend: "Frontend",
   backend: "Backend",
   database: "Database",
   devops: "DevOps",
   design: "Design",
-  tools: "Tools",
+  tools: "Tools & Software",
+  accounting: "Accounting",
+  finance: "Finance",
+  marketing: "Marketing",
+  sales: "Sales & Business Development",
+  business: "Business & Management",
+  analytics: "Data & Analytics",
+  softSkills: "Soft Skills",
   other: "Other",
 };
 

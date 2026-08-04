@@ -16,20 +16,18 @@ export function createDefaultPortfolio(params: {
     theme: { preset: "berryDusk", mode: "system" },
     hero: {
       name: params.displayName || "Your Name",
-      roles: ["Software Engineer", "Product Builder", "Designer"],
-      intro:
-        "I build thoughtful, high-craft digital products. Welcome to my portfolio — edit this introduction from the dashboard.",
+      roles: [],
+      intro: "",
       profileImage: "",
       bannerImage: "",
       resumeUrl: "",
-      stats: [
-        { id: "stat-experience", label: "Years Experience", value: 2, suffix: "+" },
-        { id: "stat-projects", label: "Projects Shipped", value: 12, suffix: "+" },
-        { id: "stat-certs", label: "Certifications", value: 4, suffix: "" },
-      ],
+      // Deliberately empty: invented numbers would be published as if they
+      // were the owner's real track record. The hero hides the stats block
+      // entirely until they add their own.
+      stats: [],
     },
     about: {
-      bio: "Tell visitors who you are, what you do, and what drives you. Head to the About section of your dashboard to personalize this.",
+      bio: "",
       highlights: [],
     },
     education: [],
