@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChevronDown, GripVertical, Plus, Trash2 } from "lucide-react";
 import { Field, TextArea, TextInput } from "@/components/dashboard/fields";
 import { ImageUploader } from "@/components/dashboard/ImageUploader";
-import type { UploadFolder } from "@/lib/cloudinary/server";
+import type { UploadFolder } from "@/lib/cloudinary/folders";
 
 export type FieldType =
   | "text"

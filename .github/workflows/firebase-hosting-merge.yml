@@ -1,8 +1,11 @@
 name: Deploy to Firebase (live)
 
-# Sole deployment path for this app: pushes to main build the Next.js app and
-# deploy Hosting + Firestore rules/indexes via the Firebase CLI, authenticated
-# with a service account. There is no manual/local `firebase deploy` step.
+# Sole deployment path for this app: pushes to main build the static site and
+# deploy it, together with the Firestore rules, via the Firebase CLI. There is
+# no manual/local `firebase deploy` step.
+#
+# The app is a static export, so it runs on Firebase Hosting's free (Spark)
+# plan — no Cloud Functions involved.
 on:
   push:
     branches:
@@ -27,9 +30,6 @@ jobs:
           cache: 'npm'
 
       - name: Verify required secrets
-        # Checks every secret the app needs, not just the ones the deploy step
-        # would fail on: a missing NEXT_PUBLIC_* value builds fine and then
-        # breaks auth silently at runtime, so catch it here instead.
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
@@ -38,9 +38,8 @@ jobs:
           NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+          NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
         run: |
           missing=()
           for v in \
@@ -51,9 +50,8 @@ jobs:
             NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET \
             NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID \
             NEXT_PUBLIC_FIREBASE_APP_ID \
-            CLOUDINARY_CLOUD_NAME \
-            CLOUDINARY_API_KEY \
-            CLOUDINARY_API_SECRET
+            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME \
+            NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
           do
             if [ -z "${!v}" ]; then missing+=("$v"); fi
           done
@@ -63,13 +61,27 @@ jobs:
             echo "See the Deployment section of README.md for where each value comes from."
             exit 1
           fi
-          echo "All 10 required secrets are present."
+          echo "All 9 required secrets are present."
 
       - name: Install dependencies
         run: npm ci
 
       - name: Lint
         run: npm run lint
+
+      - name: Build static site
+        # NEXT_PUBLIC_* values are inlined at build time, so they must be set
+        # here rather than on the deploy step.
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+          NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -83,21 +95,8 @@ jobs:
         # google-github-actions/auth already exported GOOGLE_APPLICATION_CREDENTIALS,
         # so the CLI picks up the service account without writing our own key file.
         run: |
-          firebase experiments:enable webframeworks
           firebase deploy \
             --only hosting,firestore:rules,firestore:indexes \
             --non-interactive \
             --force \
             --project dynamicportfolio-43345
-        env:
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          # Server-side Firestore access reuses the same service account JSON.
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}

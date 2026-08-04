@@ -13,14 +13,14 @@ Built with Next.js (App Router), Firebase (Auth + Firestore), Cloudinary
 - Dashboard editors for Hero, About, Education, Experience, Skills,
   Projects, Certifications, Awards, Achievements, Open Source, Blogs,
   Testimonials, Contact & Social, and Theme
-- Cloudinary uploads (signed, server-side) for profile photo, banner,
-  project/certification images, and resume PDF
+- Cloudinary uploads for profile photo, banner, project/certification
+  images, and resume PDF
 - Five curated color themes with light/dark mode
 - Publish/unpublish toggle with a copyable public link
 - Animated public portfolio page: typing effect, particle/gradient
   background, scroll reveals, tilt cards, magnetic buttons, count-up
   stats, timeline animations, glassmorphism, and more
-- SEO metadata (title/description/OG tags) per portfolio
+- Deploys as a static site, so it runs on Firebase's free Spark plan
 
 ## Getting started locally
 
@@ -37,18 +37,21 @@ npm run dev
 3. **Firestore Database** → create a database (production mode).
 4. **Project settings → General → Your apps** → add a Web app → copy the
    config values into `NEXT_PUBLIC_FIREBASE_*` in `.env.local`.
-5. **Project settings → Service accounts** → Generate new private key →
-   paste the **entire downloaded JSON** into `FIREBASE_SERVICE_ACCOUNT`
-   (server-only) in `.env.local`, as a single line in single quotes.
-6. Deploy Firestore rules with the Firebase CLI when you have it installed
-   locally: `firebase deploy --only firestore:rules`.
+5. Deploy Firestore rules with the Firebase CLI when you have it installed
+   locally: `firebase deploy --only firestore:rules`. (A service account key
+   is only needed for deploying — the app itself talks to Firestore purely
+   through the client SDK.)
 
 ### 2. Cloudinary
 
 1. Create a free account at [cloudinary.com](https://cloudinary.com).
-2. From the Dashboard, copy **Cloud name**, **API Key**, and **API Secret**
-   into `CLOUDINARY_*` in `.env.local`. No upload preset is needed —
-   uploads are signed server-side (see `app/api/cloudinary/sign/route.ts`).
+2. From the Dashboard, copy **Cloud name** into
+   `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`.
+3. Go to **Settings → Upload → Upload presets → Add upload preset**, set
+   **Signing Mode** to *Unsigned*, save, and copy its name into
+   `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`. Because the site is fully static
+   there is no server to sign uploads, so restrict the preset there
+   (allowed formats, max file size) to keep it from being abused.
 
 ### 3. Run it
 
@@ -70,20 +73,19 @@ manual/local `firebase deploy` step in the intended workflow.
 2. In `.firebaserc`, replace `REPLACE_WITH_YOUR_FIREBASE_PROJECT_ID` with
    your actual Firebase project ID.
 3. In your GitHub repo → **Settings → Secrets and variables → Actions**,
-   add these 10 repository secrets:
+   add these 9 repository secrets:
 
    | Secret | Where it comes from |
    | --- | --- |
-   | `FIREBASE_SERVICE_ACCOUNT` | The **entire JSON file** from step 1 (used both to authenticate the deploy and, parsed by the app, for server-side Firestore access) |
+   | `FIREBASE_SERVICE_ACCOUNT` | The **entire JSON file** from step 1 (authenticates the deploy) |
    | `NEXT_PUBLIC_FIREBASE_API_KEY` | Project settings → General → Your apps → Web app config |
    | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | same web app config |
    | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | same web app config |
    | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | same web app config |
    | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | same web app config |
    | `NEXT_PUBLIC_FIREBASE_APP_ID` | same web app config |
-   | `CLOUDINARY_CLOUD_NAME` | Cloudinary Console → Dashboard |
-   | `CLOUDINARY_API_KEY` | same Cloudinary dashboard |
-   | `CLOUDINARY_API_SECRET` | same Cloudinary dashboard |
+   | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary Console → Dashboard |
+   | `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Name of the *unsigned* upload preset you created |
 
    The Hosting project/site the deploy targets comes from `.firebaserc` and
    `firebase.json`, so no separate project-ID secret is needed.
@@ -97,10 +99,14 @@ manual/local `firebase deploy` step in the intended workflow.
 6. `.github/workflows/ci.yml` runs lint + build on every push/PR as a
    sanity check.
 
-> **Note:** this app server-renders (`/[username]` and the Cloudinary signing
-> route), so Firebase Hosting serves it through Cloud Functions/Cloud Run.
-> That requires the Firebase **Blaze** (pay-as-you-go) plan — the free Spark
-> plan can only serve static files and the deploy will fail on it.
+> **Runs on the free plan.** The app is built as a static export
+> (`output: "export"`), so Firebase Hosting serves it without Cloud
+> Functions — no **Blaze** upgrade required.
+>
+> The trade-off: portfolio pages are rendered in the browser, so search
+> engines and social-media link previews see the page shell rather than the
+> portfolio owner's name and photo. Restoring that would require a host that
+> runs server-side rendering (Blaze, or a free SSR host such as Vercel).
 
 ## Project structure
 
@@ -110,17 +116,16 @@ app/
   (auth)/login/         Sign-in page
   onboarding/           Username claim flow (first login)
   dashboard/            Auth-guarded editor (one route per section)
-  [username]/           Public, SSR'd portfolio page
-  api/cloudinary/sign/  Signed upload endpoint (server-only secret)
+  portfolio/            Public portfolio page; Hosting rewrites /{username} here
 components/
   hero/, sections/      Public portfolio building blocks
   effects/              Reusable animation primitives
   dashboard/            Editor shell + generic CRUD list editor
   portfolio/            Theme/nav wrappers for the public page
 lib/
-  firebase/             Client + Admin SDK init
-  firestore/             Data access (client + server)
-  cloudinary/            Signed upload helpers
+  firebase/             Client SDK init
+  firestore/             Firestore data access
+  cloudinary/            Unsigned browser-upload helper
   themes.ts             Color preset definitions
 types/portfolio.ts       Shared data model
 firestore.rules          Firestore security rules
@@ -129,7 +134,8 @@ firestore.rules          Firestore security rules
 ## Data model
 
 Each portfolio is a single Firestore document at `portfolios/{username}`
-(see `types/portfolio.ts`), keeping the public page to one read. A
+(see `types/portfolio.ts`), keeping the public page to one read — the doc ID
+*is* the username, so no lookup index is needed. A
 `users/{uid}` document maps an authenticated owner to their claimed
 username. Firestore rules restrict writes to the document's `ownerUid`
 while keeping `portfolios/*` publicly readable.

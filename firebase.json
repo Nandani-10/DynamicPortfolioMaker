@@ -1,8 +1,16 @@
 {
   "hosting": {
     "site": "yashdynamicportfolio-43345",
-    "source": ".",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    "public": "out",
+    "cleanUrls": true,
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "//": "Single-segment paths that match no real file are public portfolio URLs (/janedoe). Hosting checks static files first, so /login and /dashboard still win.",
+        "source": "/:username",
+        "destination": "/portfolio.html"
+      }
+    ]
   },
   "firestore": {
     "rules": "firestore.rules",
