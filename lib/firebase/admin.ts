@@ -2,18 +2,47 @@ import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
+interface ServiceAccountJson {
+  project_id?: string;
+  client_email?: string;
+  private_key?: string;
+}
+
+/**
+ * Reads credentials from FIREBASE_SERVICE_ACCOUNT — the full service account
+ * JSON that Firebase Console hands you, used as-is. This is the same value the
+ * deploy workflow needs, so one secret covers both.
+ */
+function credentialsFromServiceAccountJson() {
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (!raw) return null;
+
+  let parsed: ServiceAccountJson;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    console.warn("FIREBASE_SERVICE_ACCOUNT is set but is not valid JSON — ignoring it.");
+    return null;
+  }
+
+  const projectId = parsed.project_id;
+  const clientEmail = parsed.client_email;
+  const privateKey = parsed.private_key?.replace(/\\n/g, "\n");
+  if (!projectId || !clientEmail || !privateKey) return null;
+
+  return { projectId, clientEmail, privateKey };
+}
+
 function getAdminApp(): App {
   const existing = getApps();
   if (existing.length > 0) return existing[0];
 
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const credentials = credentialsFromServiceAccountJson();
 
-  if (projectId && clientEmail && privateKey) {
+  if (credentials) {
     return initializeApp({
-      credential: cert({ projectId, clientEmail, privateKey }),
-      projectId,
+      credential: cert(credentials),
+      projectId: credentials.projectId,
     });
   }
 

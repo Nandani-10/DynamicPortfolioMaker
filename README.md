@@ -38,8 +38,8 @@ npm run dev
 4. **Project settings → General → Your apps** → add a Web app → copy the
    config values into `NEXT_PUBLIC_FIREBASE_*` in `.env.local`.
 5. **Project settings → Service accounts** → Generate new private key →
-   copy `project_id`, `client_email`, `private_key` into `FIREBASE_*`
-   (server-only) in `.env.local`. Keep the `\n` escapes literal.
+   paste the **entire downloaded JSON** into `FIREBASE_SERVICE_ACCOUNT`
+   (server-only) in `.env.local`, as a single line in single quotes.
 6. Deploy Firestore rules with the Firebase CLI when you have it installed
    locally: `firebase deploy --only firestore:rules`.
 
@@ -70,20 +70,23 @@ manual/local `firebase deploy` step in the intended workflow.
 2. In `.firebaserc`, replace `REPLACE_WITH_YOUR_FIREBASE_PROJECT_ID` with
    your actual Firebase project ID.
 3. In your GitHub repo → **Settings → Secrets and variables → Actions**,
-   add these repository secrets:
-   - `FIREBASE_SERVICE_ACCOUNT` — the full JSON contents of the service
-     account key from step 1
-   - `FIREBASE_PROJECT_ID`
-   - `FIREBASE_CLIENT_EMAIL`
-   - `FIREBASE_PRIVATE_KEY`
-   - `NEXT_PUBLIC_FIREBASE_API_KEY`
-   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-   - `NEXT_PUBLIC_FIREBASE_APP_ID`
-   - `CLOUDINARY_CLOUD_NAME`
-   - `CLOUDINARY_API_KEY`
-   - `CLOUDINARY_API_SECRET`
+   add these 9 repository secrets:
+
+   | Secret | Where it comes from |
+   | --- | --- |
+   | `FIREBASE_SERVICE_ACCOUNT` | The **entire JSON file** from step 1 (used both to authenticate the deploy and, parsed by the app, for server-side Firestore access) |
+   | `NEXT_PUBLIC_FIREBASE_API_KEY` | Project settings → General → Your apps → Web app config |
+   | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | same web app config |
+   | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | same web app config |
+   | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | same web app config |
+   | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | same web app config |
+   | `NEXT_PUBLIC_FIREBASE_APP_ID` | same web app config |
+   | `CLOUDINARY_CLOUD_NAME` | Cloudinary Console → Dashboard |
+   | `CLOUDINARY_API_KEY` | same Cloudinary dashboard |
+   | `CLOUDINARY_API_SECRET` | same Cloudinary dashboard |
+
+   The Hosting project/site the deploy targets comes from `.firebaserc` and
+   `firebase.json`, so no separate project-ID secret is needed.
 4. Push to `main` — `.github/workflows/firebase-hosting-merge.yml` builds
    the app and deploys it to the Firebase Hosting **live** channel.
 5. Every pull request automatically gets a temporary **preview** deploy via
