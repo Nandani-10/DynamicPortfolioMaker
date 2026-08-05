@@ -5,12 +5,12 @@ import { StaggerGroup, StaggerItem } from "@/components/effects/ScrollReveal";
 import { TiltCard } from "@/components/effects/TiltCard";
 import type { TestimonialItem } from "@/types/portfolio";
 
-export function TestimonialsSection({ items }: { items: TestimonialItem[] }) {
+export function TestimonialsSection({ items, title }: { items: TestimonialItem[]; title?: string }) {
   if (items.length === 0) return null;
 
   return (
     <section id="testimonials" className="mx-auto max-w-5xl px-6 py-24">
-      <SectionHeading eyebrow="Kind words" title="Testimonials" />
+      <SectionHeading eyebrow="Kind words" title={title ?? "Testimonials"} />
       <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         {items.map((t) => (
           <StaggerItem key={t.id}>

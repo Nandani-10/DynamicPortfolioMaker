@@ -3,12 +3,12 @@ import { SectionHeading } from "@/components/sections/SectionHeading";
 import { StaggerGroup, StaggerItem } from "@/components/effects/ScrollReveal";
 import type { AwardItem } from "@/types/portfolio";
 
-export function AwardsSection({ items }: { items: AwardItem[] }) {
+export function AwardsSection({ items, title }: { items: AwardItem[]; title?: string }) {
   if (items.length === 0) return null;
 
   return (
     <section id="awards" className="mx-auto max-w-4xl px-6 py-24">
-      <SectionHeading eyebrow="Recognition" title="Awards & Recognition" />
+      <SectionHeading eyebrow="Recognition" title={title ?? "Awards & Recognition"} />
       <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {items.map((award) => (
           <StaggerItem key={award.id}>

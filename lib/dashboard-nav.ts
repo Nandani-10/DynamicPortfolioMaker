@@ -10,6 +10,7 @@ import {
   GitBranch,
   GraduationCap,
   LayoutDashboard,
+  ListOrdered,
   MessageSquareQuote,
   Palette,
   Sparkles,
@@ -38,5 +39,6 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
   { href: "/dashboard/blogs", label: "Blogs & Publications", icon: BookOpen },
   { href: "/dashboard/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/dashboard/contact", label: "Contact & Social", icon: Contact },
+  { href: "/dashboard/sections", label: "Sections & Order", icon: ListOrdered },
   { href: "/dashboard/theme", label: "Theme", icon: Palette },
 ];

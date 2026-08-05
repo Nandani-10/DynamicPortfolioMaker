@@ -4,12 +4,12 @@ import { SectionHeading } from "@/components/sections/SectionHeading";
 import { StaggerGroup, StaggerItem } from "@/components/effects/ScrollReveal";
 import type { BlogItem } from "@/types/portfolio";
 
-export function BlogsSection({ items }: { items: BlogItem[] }) {
+export function BlogsSection({ items, title }: { items: BlogItem[]; title?: string }) {
   if (items.length === 0) return null;
 
   return (
     <section id="blogs" className="mx-auto max-w-5xl px-6 py-24">
-      <SectionHeading eyebrow="Writing" title="Blogs & Publications" />
+      <SectionHeading eyebrow="Writing" title={title ?? "Blogs & Publications"} />
       <StaggerGroup className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {items.map((blog) => (
           <StaggerItem key={blog.id}>

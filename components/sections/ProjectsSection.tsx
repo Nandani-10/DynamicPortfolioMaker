@@ -165,14 +165,20 @@ function ProjectBack({ project }: { project: ProjectItem }) {
   );
 }
 
-export function ProjectsSection({ items }: { items: ProjectItem[] }) {
+export function ProjectsSection({
+  items,
+  title,
+}: {
+  items: ProjectItem[];
+  title?: string;
+}) {
   if (items.length === 0) return null;
 
   return (
     <section id="projects" className="mx-auto max-w-6xl px-6 py-24">
       <SectionHeading
         eyebrow="Selected work"
-        title="Projects"
+        title={title ?? "Projects"}
         description="A few things I've designed, built, and shipped. Click any card to see how it was built."
       />
       <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
