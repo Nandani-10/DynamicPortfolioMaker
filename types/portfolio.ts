@@ -70,6 +70,7 @@ export interface ExperienceItem {
 }
 
 export type SkillCategory =
+  // Technical
   | "language"
   | "frontend"
   | "backend"
@@ -77,6 +78,14 @@ export type SkillCategory =
   | "devops"
   | "design"
   | "tools"
+  // Commerce & business
+  | "accounting"
+  | "finance"
+  | "marketing"
+  | "sales"
+  | "business"
+  | "analytics"
+  | "softSkills"
   | "other";
 
 export interface SkillItem {
