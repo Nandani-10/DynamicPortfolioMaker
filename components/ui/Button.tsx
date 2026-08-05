@@ -97,14 +97,28 @@ export function Button({
   ));
 
   if (href) {
+    const anchorProps = {
+      className: baseClass,
+      onMouseMove: handleMouseMove as unknown as (e: MouseEvent<HTMLAnchorElement>) => void,
+      onMouseLeave: handleMouseLeave,
+    };
+
+    // next/link is for in-app routing; an absolute URL needs a plain anchor so
+    // the browser handles it (including downloads served as an attachment,
+    // which must stay in the current tab or the new tab flashes open and shut).
+    if (/^https?:\/\//i.test(href)) {
+      return (
+        <motion.span style={{ x: springX, y: springY }} className="inline-block">
+          <a href={href} rel="noreferrer" {...anchorProps}>
+            {children}
+          </a>
+        </motion.span>
+      );
+    }
+
     return (
       <motion.span style={{ x: springX, y: springY }} className="inline-block">
-        <Link
-          href={href}
-          className={baseClass}
-          onMouseMove={handleMouseMove as unknown as (e: MouseEvent<HTMLAnchorElement>) => void}
-          onMouseLeave={handleMouseLeave}
-        >
+        <Link href={href} {...anchorProps}>
           {children}
         </Link>
       </motion.span>
