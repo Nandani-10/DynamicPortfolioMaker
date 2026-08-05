@@ -52,6 +52,11 @@ npm run dev
    `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`. Because the site is fully static
    there is no server to sign uploads, so restrict the preset there
    (allowed formats, max file size) to keep it from being abused.
+4. Go to **Settings → Security** and make sure **PDF and ZIP files** is *not*
+   listed under **Restricted media types**. Cloudinary blocks PDF delivery by
+   default on new accounts, which uploads the resume successfully but then
+   fails to serve it — the Download Resume button returns an error instead of
+   the file.
 
 ### 3. Run it
 
