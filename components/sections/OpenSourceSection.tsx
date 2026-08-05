@@ -3,12 +3,12 @@ import { SectionHeading } from "@/components/sections/SectionHeading";
 import { StaggerGroup, StaggerItem } from "@/components/effects/ScrollReveal";
 import type { OpenSourceItem } from "@/types/portfolio";
 
-export function OpenSourceSection({ items }: { items: OpenSourceItem[] }) {
+export function OpenSourceSection({ items, title }: { items: OpenSourceItem[]; title?: string }) {
   if (items.length === 0) return null;
 
   return (
     <section id="open-source" className="mx-auto max-w-4xl px-6 py-24">
-      <SectionHeading eyebrow="Community" title="Open Source Contributions" />
+      <SectionHeading eyebrow="Community" title={title ?? "Open Source Contributions"} />
       <StaggerGroup className="space-y-3">
         {items.map((item) => (
           <StaggerItem key={item.id}>

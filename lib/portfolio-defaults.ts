@@ -1,3 +1,4 @@
+import { defaultSectionSettings } from "@/lib/sections";
 import type { Portfolio } from "@/types/portfolio";
 
 export function createDefaultPortfolio(params: {
@@ -45,6 +46,7 @@ export function createDefaultPortfolio(params: {
       email: params.email || "",
       formEnabled: true,
     },
+    sections: defaultSectionSettings(),
   };
 }
 

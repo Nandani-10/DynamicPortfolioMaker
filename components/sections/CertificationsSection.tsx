@@ -95,7 +95,13 @@ function CertificateLightbox({
   );
 }
 
-export function CertificationsSection({ items }: { items: CertificationItem[] }) {
+export function CertificationsSection({
+  items,
+  title,
+}: {
+  items: CertificationItem[];
+  title?: string;
+}) {
   const [active, setActive] = useState<CertificationItem | null>(null);
 
   if (items.length === 0) return null;
@@ -104,7 +110,7 @@ export function CertificationsSection({ items }: { items: CertificationItem[] })
     <section id="certifications" className="mx-auto max-w-5xl px-6 py-24">
       <SectionHeading
         eyebrow="Credentials"
-        title="Certifications"
+        title={title ?? "Certifications"}
         description="Click a certificate to view it full size."
       />
       <StaggerGroup className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
