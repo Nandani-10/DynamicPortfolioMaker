@@ -95,7 +95,13 @@ export default function AboutEditorPage() {
         label="Resume (PDF)"
         value={resumeUrl ?? ""}
         folder="resume"
-        onChange={(url) => setResumeUrl(url)}
+        onChange={async (url) => {
+          // Persist right away — see the note in the Hero editor.
+          setResumeUrl(url);
+          if (portfolio) {
+            await save({ hero: { ...portfolio.hero, resumeUrl: url } });
+          }
+        }}
       />
     </SectionEditorShell>
   );

@@ -19,6 +19,8 @@ import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { PortfolioFooter } from "@/components/sections/PortfolioFooter";
 import { CursorFollower } from "@/components/effects/CursorFollower";
+import { ScrollProgress } from "@/components/effects/ScrollProgress";
+import { BackToTop } from "@/components/effects/BackToTop";
 import { resolveThemeColors } from "@/lib/themes";
 import type { Portfolio } from "@/types/portfolio";
 
@@ -67,6 +69,8 @@ export function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
   return (
     <PortfolioThemeRoot theme={portfolio.theme}>
       <CursorFollower />
+      <ScrollProgress />
+      <BackToTop />
       {!portfolio.published && isOwner && (
         <div className="sticky top-0 z-50 bg-amber-500 px-4 py-2 text-center text-xs font-medium text-black">
           Private preview — only you can see this until you publish from the dashboard.

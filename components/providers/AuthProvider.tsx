@@ -9,19 +9,24 @@ import {
   type ReactNode,
 } from "react";
 import {
+  getRedirectResult,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithRedirect,
   signOut as firebaseSignOut,
   type User,
 } from "firebase/auth";
 import { auth, googleProvider, isFirebaseConfigured } from "@/lib/firebase/client";
 import { subscribeToUserProfile } from "@/lib/firestore/portfolio";
+import { shouldFallBackToRedirect } from "@/lib/auth-errors";
 import type { UserProfile } from "@/types/portfolio";
 
 interface AuthContextValue {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
+  /** Error from a redirect-based sign-in, which has no call site to catch it. */
+  redirectError: unknown;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -33,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [redirectError, setRedirectError] = useState<unknown>(null);
 
   useEffect(() => {
     // Firebase isn't configured (e.g. this build/preview has no env vars) —
@@ -42,6 +48,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfileLoading(false);
       return;
     }
+    // Completes the redirect flow when we fell back to it. Without this the
+    // error from a failed redirect sign-in is never surfaced anywhere.
+    getRedirectResult(auth).catch((error) => {
+      setRedirectError(error);
+    });
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setAuthLoading(false);
@@ -68,19 +80,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       profile,
       loading: authLoading || (!!user && profileLoading),
+      redirectError,
       signInWithGoogle: async () => {
         if (!isFirebaseConfigured) {
           throw new Error(
             "Firebase isn't configured yet. Add your Firebase env vars to enable sign-in."
           );
         }
-        await signInWithPopup(auth, googleProvider);
+        try {
+          await signInWithPopup(auth, googleProvider);
+        } catch (error) {
+          // Popups are blocked outright in some browsers and in embedded
+          // webviews (Instagram/LinkedIn in-app browsers), where the only
+          // workable flow is a full-page redirect.
+          if (shouldFallBackToRedirect(error)) {
+            await signInWithRedirect(auth, googleProvider);
+            return;
+          }
+          throw error;
+        }
       },
       signOut: async () => {
         await firebaseSignOut(auth);
       },
     }),
-    [user, profile, authLoading, profileLoading]
+    [user, profile, authLoading, profileLoading, redirectError]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

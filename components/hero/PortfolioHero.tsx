@@ -68,19 +68,8 @@ export function PortfolioHero({
       <GradientOrbs />
       <WaterDropGrid />
 
-      <span
-        aria-hidden
-        className="animate-float absolute left-[12%] top-24 h-3 w-3 rounded-full opacity-60"
-        style={{ background: "var(--accent-1)" }}
-      />
-      <span
-        aria-hidden
-        className="animate-float absolute right-[15%] top-40 h-2 w-2 rounded-full opacity-50"
-        style={{ background: "var(--accent-3)", animationDelay: "1.5s" }}
-      />
-
       {hero.bannerImage && (
-        <motion.div className="absolute inset-x-0 top-0 h-64 sm:h-80" style={{ y: bannerY }}>
+        <motion.div className="absolute inset-x-0 top-0 z-[1] h-64 sm:h-80" style={{ y: bannerY }}>
           <Image
             src={hero.bannerImage}
             alt=""
@@ -93,13 +82,13 @@ export function PortfolioHero({
         </motion.div>
       )}
 
-      <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-6 px-6 py-24 text-center">
+      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-6 px-6 py-24 text-center">
         {hero.profileImage && (
           <motion.div
             initial={{ opacity: 0, scale: 0.7, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="animate-float relative h-32 w-32 overflow-hidden rounded-full ring-4 ring-[var(--surface)] shadow-[var(--shadow-soft)] sm:h-40 sm:w-40"
+            className="relative h-32 w-32 overflow-hidden rounded-full ring-4 ring-[var(--surface)] shadow-[var(--shadow-soft)] sm:h-40 sm:w-40"
           >
             <Image
               src={hero.profileImage}
@@ -212,7 +201,7 @@ export function PortfolioHero({
       <motion.div
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="relative mx-auto mb-8 flex flex-col items-center gap-1 text-[var(--text-muted)]"
+        className="relative z-10 mx-auto mb-8 flex flex-col items-center gap-1 text-[var(--text-muted)]"
       >
         <span className="text-xs uppercase tracking-widest">Scroll</span>
         <ChevronDown className="h-4 w-4" />

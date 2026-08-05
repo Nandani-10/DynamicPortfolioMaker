@@ -24,6 +24,21 @@ export default function HeroEditorPage() {
     setHero((prev) => (prev ? { ...prev, ...update } : prev));
   }
 
+  /**
+   * Images persist the moment they finish uploading rather than waiting for
+   * "Save changes". The file is already in Cloudinary by then, so the preview
+   * shown here looks identical whether or not the URL reached Firestore —
+   * making it very easy to navigate away believing the photo was saved.
+   */
+  async function patchAndSave(update: Partial<HeroContent>) {
+    if (!hero) return;
+    const next = { ...hero, ...update };
+    setHero(next);
+    await save({ hero: next });
+    setJustSaved(true);
+    setTimeout(() => setJustSaved(false), 2500);
+  }
+
   async function handleSave() {
     if (!hero) return;
     await save({ hero });
@@ -45,14 +60,14 @@ export default function HeroEditorPage() {
           label="Profile photo"
           value={hero.profileImage}
           folder="profile"
-          onChange={(url) => patch({ profileImage: url })}
+          onChange={(url) => patchAndSave({ profileImage: url })}
         />
         <div className="flex-1">
           <ImageUploader
             label="Background banner"
             value={hero.bannerImage}
             folder="banner"
-            onChange={(url) => patch({ bannerImage: url })}
+            onChange={(url) => patchAndSave({ bannerImage: url })}
             aspect="wide"
           />
         </div>
