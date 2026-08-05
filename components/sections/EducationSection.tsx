@@ -3,12 +3,12 @@ import { SectionHeading } from "@/components/sections/SectionHeading";
 import { ScrollReveal } from "@/components/effects/ScrollReveal";
 import type { EducationItem } from "@/types/portfolio";
 
-export function EducationSection({ items }: { items: EducationItem[] }) {
+export function EducationSection({ items, title }: { items: EducationItem[]; title?: string }) {
   if (items.length === 0) return null;
 
   return (
     <section id="education" className="mx-auto max-w-3xl px-6 py-24">
-      <SectionHeading eyebrow="Academics" title="Education" />
+      <SectionHeading eyebrow="Academics" title={title ?? "Education"} />
       <div className="relative space-y-8 border-l border-[var(--border)] pl-8">
         {items.map((item, i) => (
           <ScrollReveal key={item.id} delay={i * 0.05} direction="left">
