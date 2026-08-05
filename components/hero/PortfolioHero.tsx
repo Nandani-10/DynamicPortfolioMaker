@@ -18,6 +18,7 @@ import {
 import { GradientOrbs } from "@/components/effects/GradientOrbs";
 import { WaterDropGrid } from "@/components/hero/WaterDropGrid";
 import { Button } from "@/components/ui/Button";
+import { toAttachmentUrl } from "@/lib/cloudinary/download";
 import type { HeroContent, SocialLinks } from "@/types/portfolio";
 
 const SOCIAL_ICONS: Record<keyof SocialLinks, typeof FaGithub> = {
@@ -143,7 +144,10 @@ export function PortfolioHero({
           className="flex flex-wrap items-center justify-center gap-3"
         >
           {hero.resumeUrl && (
-            <Button href={hero.resumeUrl}>
+            // Downloads the file instead of opening it in the browser's PDF
+            // viewer, and saves it under the owner's name rather than the
+            // random suffix Cloudinary adds to the public ID.
+            <Button href={toAttachmentUrl(hero.resumeUrl, `${hero.name} Resume`)}>
               <Download className="h-4 w-4" /> Download Resume
             </Button>
           )}
