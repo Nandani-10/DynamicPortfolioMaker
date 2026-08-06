@@ -42,14 +42,24 @@ export default function DashboardOverview() {
     setTimeout(() => setCopied(false), 2000);
   }
 
+  // Everything a visitor notices the absence of, weighted equally. Optional
+  // sections (awards, blogs, testimonials) are deliberately excluded — a
+  // portfolio isn't incomplete for lacking press coverage.
   const checklist = [
-    { label: "Hero introduction", done: !!portfolio?.hero.intro },
-    { label: "Profile photo", done: !!portfolio?.hero.profileImage },
-    { label: "About bio", done: !!portfolio?.about.bio },
-    { label: "At least one project", done: (portfolio?.projects.length ?? 0) > 0 },
-    { label: "At least one skill", done: (portfolio?.skills.length ?? 0) > 0 },
-    { label: "Contact email", done: !!portfolio?.contact.email },
+    { label: "Hero introduction", done: !!portfolio?.hero.intro, href: "/dashboard/hero" },
+    { label: "Roles for the typing effect", done: (portfolio?.hero.roles.length ?? 0) > 0, href: "/dashboard/hero" },
+    { label: "Profile photo", done: !!portfolio?.hero.profileImage, href: "/dashboard/hero" },
+    { label: "About bio", done: !!portfolio?.about.bio, href: "/dashboard/about" },
+    { label: "Resume PDF", done: !!portfolio?.hero.resumeUrl, href: "/dashboard/about" },
+    { label: "At least one project", done: (portfolio?.projects.length ?? 0) > 0, href: "/dashboard/projects" },
+    { label: "At least one skill", done: (portfolio?.skills.length ?? 0) > 0, href: "/dashboard/skills" },
+    { label: "Experience or education", done: (portfolio?.experience.length ?? 0) + (portfolio?.education.length ?? 0) > 0, href: "/dashboard/experience" },
+    { label: "Contact email", done: !!portfolio?.contact.email, href: "/dashboard/contact" },
+    { label: "A social link", done: Object.values(portfolio?.social ?? {}).some(Boolean), href: "/dashboard/contact" },
   ];
+
+  const completed = checklist.filter((item) => item.done).length;
+  const percent = Math.round((completed / checklist.length) * 100);
 
   return (
     <PageFadeIn>
@@ -118,12 +128,32 @@ export default function DashboardOverview() {
       </div>
 
       <div className="card-surface mb-6 p-6">
-        <p className="mb-4 text-sm font-medium">Profile checklist</p>
+        <div className="mb-1 flex items-baseline justify-between">
+          <p className="text-sm font-medium">Portfolio completeness</p>
+          <p className="text-sm font-medium tabular-nums">{percent}%</p>
+        </div>
+        <p className="mb-4 text-xs text-[var(--text-muted)]">
+          {completed} of {checklist.length} essentials filled in
+          {percent < 100 ? " — the unchecked ones link straight to their editor." : "."}
+        </p>
+
+        <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-[var(--surface-alt)]">
+          <div
+            role="progressbar"
+            aria-valuenow={percent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Portfolio completeness"
+            style={{ width: `${percent}%` }}
+            className="h-full rounded-full bg-[linear-gradient(90deg,var(--accent-1),var(--accent-2),var(--accent-3))] transition-[width] duration-500"
+          />
+        </div>
+
         <ul className="space-y-2.5">
           {checklist.map((item) => (
             <li key={item.label} className="flex items-center gap-2.5 text-sm">
               <span
-                className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
                   item.done
                     ? "bg-emerald-500/15 text-emerald-500"
                     : "bg-[var(--surface-alt)] text-[var(--text-muted)]"
@@ -131,7 +161,16 @@ export default function DashboardOverview() {
               >
                 {item.done && <Check className="h-3 w-3" />}
               </span>
-              <span className={item.done ? "" : "text-[var(--text-muted)]"}>{item.label}</span>
+              {item.done ? (
+                <span>{item.label}</span>
+              ) : (
+                <a
+                  href={item.href}
+                  className="text-[var(--text-muted)] underline-offset-2 hover:text-[var(--text)] hover:underline"
+                >
+                  {item.label}
+                </a>
+              )}
             </li>
           ))}
         </ul>

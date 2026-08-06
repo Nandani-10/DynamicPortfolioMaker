@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { LogOut, Menu, X, ExternalLink } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { LivePreview } from "@/components/dashboard/LivePreview";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { DASHBOARD_NAV } from "@/lib/dashboard-nav";
 import type { ReactNode } from "react";
 
@@ -13,6 +15,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { profile, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const hasUnsaved = useUnsavedChangesGuard();
 
   async function handleSignOut() {
     await signOut();
@@ -25,6 +28,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface)]/90 px-4 py-3 backdrop-blur md:hidden">
         <span className="font-[family-name:var(--font-display)] text-base font-semibold">
           Portfolio<span className="gradient-text">Maker</span>
+          {hasUnsaved && (
+            <span
+              title="You have unsaved changes"
+              className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-amber-500 align-middle"
+            />
+          )}
         </span>
         <button
           aria-label="Toggle navigation"
@@ -48,6 +57,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           >
             Portfolio<span className="gradient-text">Maker</span>
           </Link>
+
+          {hasUnsaved && (
+            <p className="mb-4 flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+              Unsaved changes on this page
+            </p>
+          )}
 
           <nav className="scrollbar-thin flex-1 space-y-1 overflow-y-auto pr-1">
             {DASHBOARD_NAV.map((item) => {
@@ -104,9 +120,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         />
       )}
 
-      <main className="min-w-0 flex-1 px-5 pb-16 pt-20 sm:px-8 md:pt-10">
+      <main className="min-w-0 flex-1 px-5 pb-24 pt-20 sm:px-8 md:pt-10">
         <div className="mx-auto w-full max-w-3xl">{children}</div>
       </main>
+
+      <LivePreview />
     </div>
   );
 }
