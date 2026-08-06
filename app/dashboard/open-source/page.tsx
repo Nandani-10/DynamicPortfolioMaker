@@ -6,6 +6,9 @@ import { useOwnerPortfolio } from "@/hooks/usePortfolio";
 import { useLocalSectionState } from "@/hooks/useLocalSectionState";
 import { SectionEditorShell } from "@/components/dashboard/SectionEditorShell";
 import { RepeatingItemsEditor, type ItemFieldSchema } from "@/components/dashboard/RepeatingItemsEditor";
+import { GitHubImport } from "@/components/dashboard/GitHubImport";
+import { repoToOpenSource } from "@/lib/github-import";
+import { githubUsernameFromUrl } from "@/lib/social";
 import type { OpenSourceItem } from "@/types/portfolio";
 
 const FIELDS: ItemFieldSchema[] = [
@@ -22,6 +25,7 @@ export default function OpenSourceEditorPage() {
     loading
   );
   const [justSaved, setJustSaved] = useState(false);
+  const githubHandle = githubUsernameFromUrl(portfolio?.social.github);
 
   if (!items) return <div className="skeleton h-80" />;
 
@@ -41,6 +45,13 @@ export default function OpenSourceEditorPage() {
       saved={justSaved}
       error={error}
     >
+      <GitHubImport
+        label="Import from GitHub"
+        defaultUsername={githubHandle}
+        existingUrls={items.map((item) => item.url)}
+        onImport={(repos) => setItems([...items, ...repos.map(repoToOpenSource)])}
+      />
+
       <RepeatingItemsEditor<OpenSourceItem>
         items={items}
         onChange={setItems}

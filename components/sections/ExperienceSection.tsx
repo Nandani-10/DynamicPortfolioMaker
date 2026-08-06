@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Briefcase } from "lucide-react";
 import { SectionHeading } from "@/components/sections/SectionHeading";
 import { ScrollReveal } from "@/components/effects/ScrollReveal";
+import { TimelineRail } from "@/components/effects/TimelineRail";
 import type { ExperienceItem } from "@/types/portfolio";
 
 export function ExperienceSection({ items, title }: { items: ExperienceItem[]; title?: string }) {
@@ -10,7 +11,7 @@ export function ExperienceSection({ items, title }: { items: ExperienceItem[]; t
   return (
     <section id="experience" className="mx-auto max-w-3xl px-6 py-24">
       <SectionHeading eyebrow="Career" title={title ?? "Work Experience"} />
-      <div className="relative space-y-8 border-l border-[var(--border)] pl-8">
+      <TimelineRail>
         {items.map((item, i) => (
           <ScrollReveal key={item.id} delay={i * 0.05} direction="left">
             <div className="relative">
@@ -44,7 +45,7 @@ export function ExperienceSection({ items, title }: { items: ExperienceItem[]; t
             </div>
           </ScrollReveal>
         ))}
-      </div>
+      </TimelineRail>
     </section>
   );
 }
