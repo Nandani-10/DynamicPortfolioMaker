@@ -3,12 +3,12 @@ import { SectionHeading } from "@/components/sections/SectionHeading";
 import { ScrollReveal, StaggerGroup, StaggerItem } from "@/components/effects/ScrollReveal";
 import type { AboutContent } from "@/types/portfolio";
 
-export function AboutSection({ about }: { about: AboutContent }) {
+export function AboutSection({ about, title }: { about: AboutContent; title?: string }) {
   if (!about.bio && about.highlights.length === 0) return null;
 
   return (
     <section id="about" className="mx-auto max-w-4xl px-6 py-24">
-      <SectionHeading eyebrow="Get to know me" title="About Me" />
+      <SectionHeading eyebrow="Get to know me" title={title ?? "About Me"} />
       <ScrollReveal>
         <p className="whitespace-pre-line text-center text-lg leading-relaxed text-[var(--text-muted)]">
           {about.bio}

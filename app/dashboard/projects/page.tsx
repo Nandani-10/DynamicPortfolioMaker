@@ -6,6 +6,9 @@ import { useOwnerPortfolio } from "@/hooks/usePortfolio";
 import { useLocalSectionState } from "@/hooks/useLocalSectionState";
 import { SectionEditorShell } from "@/components/dashboard/SectionEditorShell";
 import { RepeatingItemsEditor, type ItemFieldSchema } from "@/components/dashboard/RepeatingItemsEditor";
+import { GitHubImport } from "@/components/dashboard/GitHubImport";
+import { repoToProject } from "@/lib/github-import";
+import { githubUsernameFromUrl } from "@/lib/social";
 import type { ProjectItem } from "@/types/portfolio";
 
 const FIELDS: ItemFieldSchema[] = [
@@ -25,6 +28,7 @@ export default function ProjectsEditorPage() {
   const { portfolio, loading, saving, error, save } = useOwnerPortfolio();
   const [items, setItems] = useLocalSectionState<ProjectItem[]>(portfolio?.projects, loading);
   const [justSaved, setJustSaved] = useState(false);
+  const githubHandle = githubUsernameFromUrl(portfolio?.social.github);
 
   if (!items) return <div className="skeleton h-80" />;
 
@@ -44,6 +48,13 @@ export default function ProjectsEditorPage() {
       saved={justSaved}
       error={error}
     >
+      <GitHubImport
+        label="Import from GitHub"
+        defaultUsername={githubHandle}
+        existingUrls={items.map((item) => item.githubUrl ?? "")}
+        onImport={(repos) => setItems([...items, ...repos.map(repoToProject)])}
+      />
+
       <RepeatingItemsEditor<ProjectItem>
         items={items}
         onChange={setItems}

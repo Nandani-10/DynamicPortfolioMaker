@@ -168,6 +168,39 @@ export interface ContactContent {
   mapEmbedUrl?: string;
   calendlyUrl?: string;
   formEnabled: boolean;
+  /**
+   * Web3Forms access key. The site is a static export with no server to post
+   * to, so delivery goes through Web3Forms. Without a key the form falls back
+   * to opening the visitor's mail client.
+   */
+  formAccessKey?: string;
+}
+
+/** Every section an owner can reorder, rename, or hide. */
+export type ContentSectionKey =
+  | "about"
+  | "education"
+  | "experience"
+  | "skills"
+  | "projects"
+  | "certifications"
+  | "awards"
+  | "achievements"
+  | "openSource"
+  | "blogs"
+  | "testimonials"
+  | "contact";
+
+/**
+ * Per-section presentation settings. Order in the array is the order the
+ * sections render in. Optional on Portfolio — see `resolveSections`, which
+ * fills in defaults for portfolios saved before this existed.
+ */
+export interface SectionSetting {
+  key: ContentSectionKey;
+  label?: string;
+  visible: boolean;
+  inNav: boolean;
 }
 
 export interface Portfolio {
@@ -191,6 +224,8 @@ export interface Portfolio {
   testimonials: TestimonialItem[];
   social: SocialLinks;
   contact: ContactContent;
+  /** Optional: portfolios saved before section settings existed have none. */
+  sections?: SectionSetting[];
 }
 
 export type PortfolioSectionKey =
