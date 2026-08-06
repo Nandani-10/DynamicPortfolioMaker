@@ -1,15 +1,31 @@
 "use client";
 
 import Image from "next/image";
-import { ExternalLink, Lightbulb, RotateCcw, Sparkles, Target } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ExternalLink,
+  Lightbulb,
+  Maximize2,
+  RotateCcw,
+  Sparkles,
+  Target,
+} from "lucide-react";
 import { FaGithub } from "react-icons/fa6";
 import { SectionHeading } from "@/components/sections/SectionHeading";
 import { StaggerGroup, StaggerItem } from "@/components/effects/ScrollReveal";
 import { FlipCard } from "@/components/effects/FlipCard";
 import { SpotlightCard } from "@/components/effects/SpotlightCard";
+import { ProjectDetailModal } from "@/components/sections/ProjectDetailModal";
 import type { ProjectItem } from "@/types/portfolio";
 
-function ProjectFront({ project }: { project: ProjectItem }) {
+function ProjectFront({
+  project,
+  onExpand,
+}: {
+  project: ProjectItem;
+  onExpand: () => void;
+}) {
   const hasDetails =
     (project.features?.length ?? 0) > 0 || !!project.challenges || !!project.learnings;
 
@@ -35,6 +51,19 @@ function ProjectFront({ project }: { project: ProjectItem }) {
               Featured
             </span>
           )}
+          {/* Separate from the flip: the card body toggles the back face, so
+              the full view needs its own control that doesn't also flip. */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onExpand();
+            }}
+            aria-label={`Open ${project.title} in full view`}
+            className="absolute right-3 top-3 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 focus-visible:opacity-100 group-hover/flip:opacity-100"
+          >
+            <Maximize2 className="h-3.5 w-3.5" />
+          </button>
         </div>
 
         <div className="flex flex-1 flex-col p-5">
@@ -165,27 +194,123 @@ function ProjectBack({ project }: { project: ProjectItem }) {
   );
 }
 
-export function ProjectsSection({ items }: { items: ProjectItem[] }) {
+const ALL_TECH = "All";
+
+export function ProjectsSection({
+  items,
+  title,
+}: {
+  items: ProjectItem[];
+  title?: string;
+}) {
+  const [activeTech, setActiveTech] = useState(ALL_TECH);
+  const [openProjectId, setOpenProjectId] = useState<string | null>(null);
+
+  // A project link shared as `…/username#project-abc123` opens straight into
+  // that project's detail view.
+  useEffect(() => {
+    function openFromHash() {
+      const match = /^#project-(.+)$/.exec(window.location.hash);
+      setOpenProjectId(match ? decodeURIComponent(match[1]) : null);
+    }
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
+    return () => window.removeEventListener("hashchange", openFromHash);
+  }, []);
+
+  function openProject(id: string) {
+    setOpenProjectId(id);
+    // replaceState rather than a hash assignment: this shouldn't add a history
+    // entry or make the browser jump-scroll to a matching element.
+    window.history.replaceState(null, "", `#project-${encodeURIComponent(id)}`);
+  }
+
+  function closeProject() {
+    setOpenProjectId(null);
+    window.history.replaceState(null, "", "#projects");
+  }
+
   if (items.length === 0) return null;
+
+  const techCounts = new Map<string, number>();
+  for (const project of items) {
+    for (const tech of project.techStack) {
+      techCounts.set(tech, (techCounts.get(tech) ?? 0) + 1);
+    }
+  }
+  // Only offer a filter chip for stacks shared by more than one project —
+  // a chip that narrows twelve projects down to one isn't filtering.
+  const filters = [...techCounts.entries()]
+    .filter(([, count]) => count > 1)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([tech]) => tech);
+
+  const visible =
+    activeTech === ALL_TECH
+      ? items
+      : items.filter((project) => project.techStack.includes(activeTech));
+
+  const openProjectItem = items.find((project) => project.id === openProjectId) ?? null;
 
   return (
     <section id="projects" className="mx-auto max-w-6xl px-6 py-24">
       <SectionHeading
         eyebrow="Selected work"
-        title="Projects"
+        title={title ?? "Projects"}
         description="A few things I've designed, built, and shipped. Click any card to see how it was built."
       />
+
+      {filters.length > 0 && (
+        <div className="mb-8 flex flex-wrap justify-center gap-2">
+          {[ALL_TECH, ...filters].map((tech) => {
+            const active = activeTech === tech;
+            return (
+              <button
+                key={tech}
+                type="button"
+                onClick={() => setActiveTech(tech)}
+                aria-pressed={active}
+                className={`relative rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                  active
+                    ? "text-white"
+                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="project-filter-pill"
+                    className="absolute inset-0 rounded-full bg-[linear-gradient(120deg,var(--accent-2),var(--accent-3))]"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <span className="relative">{tech}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((project) => (
-          <StaggerItem key={project.id}>
-            <FlipCard
-              heightClass="h-[27rem]"
-              front={<ProjectFront project={project} />}
-              back={<ProjectBack project={project} />}
-            />
-          </StaggerItem>
-        ))}
+        <AnimatePresence mode="popLayout">
+          {visible.map((project) => (
+            <StaggerItem key={project.id}>
+              <FlipCard
+                heightClass="h-[27rem]"
+                front={
+                  <ProjectFront project={project} onExpand={() => openProject(project.id)} />
+                }
+                back={<ProjectBack project={project} />}
+              />
+            </StaggerItem>
+          ))}
+        </AnimatePresence>
       </StaggerGroup>
+
+      <AnimatePresence>
+        {openProjectItem && (
+          <ProjectDetailModal project={openProjectItem} onClose={closeProject} />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

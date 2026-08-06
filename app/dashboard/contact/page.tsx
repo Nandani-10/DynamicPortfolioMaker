@@ -81,6 +81,37 @@ export default function ContactEditorPage() {
         </label>
       </div>
 
+      {contact.formEnabled && (
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-alt)] p-4">
+          <Field
+            label="Web3Forms access key"
+            hint="Needed for the form to actually send"
+          >
+            <TextInput
+              value={contact.formAccessKey ?? ""}
+              onChange={(e) => setContact({ ...contact, formAccessKey: e.target.value })}
+              placeholder="00000000-0000-0000-0000-000000000000"
+            />
+          </Field>
+          <p className="mt-2 text-xs leading-relaxed text-[var(--text-muted)]">
+            Your portfolio is a static site with no server of its own, so form
+            submissions are delivered by{" "}
+            <a
+              href="https://web3forms.com"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--accent-3)] hover:underline"
+            >
+              Web3Forms
+            </a>{" "}
+            — enter your email there and they send a free access key to paste
+            above. Leave it empty and the form falls back to opening the
+            visitor&apos;s mail app, which does nothing on devices that have no
+            mail app set up.
+          </p>
+        </div>
+      )}
+
       <div className="border-t border-[var(--border)] pt-6">
         <p className="mb-4 text-sm font-medium">Social links</p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
