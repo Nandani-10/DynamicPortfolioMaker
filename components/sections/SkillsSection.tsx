@@ -73,7 +73,7 @@ function SkillBack({ skill }: { skill: SkillItem }) {
   );
 }
 
-export function SkillsSection({ items }: { items: SkillItem[] }) {
+export function SkillsSection({ items, title }: { items: SkillItem[]; title?: string }) {
   if (items.length === 0) return null;
 
   const grouped = items.reduce<Record<string, SkillItem[]>>((acc, skill) => {
@@ -85,7 +85,7 @@ export function SkillsSection({ items }: { items: SkillItem[] }) {
     <section id="skills" className="mx-auto max-w-5xl px-6 py-24">
       <SectionHeading
         eyebrow="Toolbox"
-        title="Skills"
+        title={title ?? "Skills"}
         description="Technologies and disciplines I work with. Click any skill for a proficiency breakdown."
       />
       <div className="space-y-10">
