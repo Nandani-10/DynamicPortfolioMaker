@@ -1,6 +1,7 @@
 import { GraduationCap } from "lucide-react";
 import { SectionHeading } from "@/components/sections/SectionHeading";
 import { ScrollReveal } from "@/components/effects/ScrollReveal";
+import { TimelineRail } from "@/components/effects/TimelineRail";
 import type { EducationItem } from "@/types/portfolio";
 
 export function EducationSection({ items, title }: { items: EducationItem[]; title?: string }) {
@@ -9,7 +10,7 @@ export function EducationSection({ items, title }: { items: EducationItem[]; tit
   return (
     <section id="education" className="mx-auto max-w-3xl px-6 py-24">
       <SectionHeading eyebrow="Academics" title={title ?? "Education"} />
-      <div className="relative space-y-8 border-l border-[var(--border)] pl-8">
+      <TimelineRail>
         {items.map((item, i) => (
           <ScrollReveal key={item.id} delay={i * 0.05} direction="left">
             <div className="relative">
@@ -36,7 +37,7 @@ export function EducationSection({ items, title }: { items: EducationItem[]; tit
             </div>
           </ScrollReveal>
         ))}
-      </div>
+      </TimelineRail>
     </section>
   );
 }
