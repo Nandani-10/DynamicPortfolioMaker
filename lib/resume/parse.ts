@@ -266,6 +266,11 @@ function extractExperience(lines: string[]): ExperienceItem[] {
     const bullets = rest.filter((line) => /^[-–—•*]/.test(line));
     const prose = rest.filter((line) => !/^[-–—•*]/.test(line));
 
+    // Optional keys are omitted rather than set to `undefined`: these objects
+    // are written straight to Firestore, which rejects the whole document if
+    // one appears anywhere in it.
+    const description = prose.join(" ").trim();
+
     return {
       id: nanoid(8),
       role: role || headline,
@@ -273,7 +278,7 @@ function extractExperience(lines: string[]): ExperienceItem[] {
       startDate: block.start,
       endDate: block.end,
       current: block.current,
-      description: prose.join(" ").trim() || undefined,
+      ...(description ? { description } : {}),
       highlights: bullets.map((b) => b.replace(/^[-–—•*]\s*/, "").trim()).filter(Boolean),
     };
   });
@@ -307,14 +312,16 @@ function extractEducation(lines: string[]): EducationItem[] {
       degree = parts.slice(1).join(", ");
     }
 
+    const description = rest.join(" ").trim();
+
     return {
       id: nanoid(8),
       degree,
-      field,
+      ...(field ? { field } : {}),
       institution,
       startDate: block.start,
       endDate: block.end,
-      description: rest.join(" ").trim() || undefined,
+      ...(description ? { description } : {}),
     };
   });
 }
