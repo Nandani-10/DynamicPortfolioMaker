@@ -22,6 +22,7 @@ import { PortfolioFooter } from "@/components/sections/PortfolioFooter";
 import { CursorFollower } from "@/components/effects/CursorFollower";
 import { ScrollProgress } from "@/components/effects/ScrollProgress";
 import { BackToTop } from "@/components/effects/BackToTop";
+import { SmoothScroll } from "@/components/effects/SmoothScroll";
 import { resolveSections, type ResolvedSection } from "@/lib/sections";
 import { resolveThemeColors } from "@/lib/themes";
 import type { ContentSectionKey, Portfolio } from "@/types/portfolio";
@@ -130,6 +131,7 @@ export function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
 
   return (
     <PortfolioThemeRoot theme={portfolio.theme}>
+      <SmoothScroll />
       <CursorFollower />
       <ScrollProgress />
       <BackToTop />
