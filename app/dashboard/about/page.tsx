@@ -7,6 +7,7 @@ import { useLocalSectionState } from "@/hooks/useLocalSectionState";
 import { SectionEditorShell } from "@/components/dashboard/SectionEditorShell";
 import { Field, TextArea, TextInput } from "@/components/dashboard/fields";
 import { FileUploader } from "@/components/dashboard/FileUploader";
+import { ResumeImport } from "@/components/dashboard/ResumeImport";
 import type { AboutContent } from "@/types/portfolio";
 
 export default function AboutEditorPage() {
@@ -103,6 +104,10 @@ export default function AboutEditorPage() {
           }
         }}
       />
+
+      {portfolio && (
+        <ResumeImport portfolio={portfolio} onApply={save} saving={saving} />
+      )}
     </SectionEditorShell>
   );
 }
