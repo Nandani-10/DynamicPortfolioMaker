@@ -113,7 +113,7 @@ export function AiKeyForm() {
                 save();
               }
             }}
-            placeholder={info.keyPrefix}
+            placeholder={info.keyPlaceholder}
             autoComplete="off"
           />
           <button
