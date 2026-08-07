@@ -11,11 +11,19 @@ import { AiError, type ProviderAdapter } from "@/lib/ai/types";
  */
 
 /**
- * Flash rather than Pro: it's the model the free tier is generous with, and
- * the work here (rewriting a paragraph, answering a question about wording)
+ * The floating alias, not a pinned version.
+ *
+ * Google retires older models to new API keys — `gemini-2.5-flash` still
+ * appears in ListModels but answers `generateContent` with a 404 saying it's
+ * "no longer available to new users". A pinned version would strand every
+ * portfolio already deployed, since this is a static site that owners publish
+ * once and don't rebuild. The alias moves with Google instead.
+ *
+ * Flash rather than Pro: it's what the free tier is generous with, and the
+ * work here (rewriting a paragraph, answering a question about wording)
  * doesn't need more.
  */
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-flash-latest";
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
 interface GeminiPart {
@@ -82,6 +90,12 @@ async function describeHttpError(response: Response): Promise<AiError> {
     case 403:
       return new AiError(
         "That API key was rejected, or it doesn't have access to the Gemini API. Check it at aistudio.google.com/apikey."
+      );
+    case 404:
+      // Google retiring the model behind the alias. Nothing the owner can fix
+      // by changing their key, so say so rather than sending them to check it.
+      return new AiError(
+        "Gemini couldn't find the model this app asks for — Google may have retired it. This needs a fix in the app, not your key."
       );
     case 429:
       return new AiError(
@@ -161,9 +175,12 @@ export const geminiAdapter: ProviderAdapter = {
         generationConfig: {
           maxOutputTokens: 4096,
           temperature: 0.7,
-          // Chat answers here are short and factual; a little thinking budget
-          // helps structure them without adding noticeable latency.
-          thinkingConfig: { thinkingBudget: 512 },
+          // `thinkingLevel`, not the older `thinkingBudget` — current Flash
+          // rejects the numeric form outright with a 400.
+          //
+          // Chat answers here are short and factual; a little thinking helps
+          // structure them without adding noticeable latency.
+          thinkingConfig: { thinkingLevel: "low" },
         },
       },
       signal
@@ -208,13 +225,16 @@ export const geminiAdapter: ProviderAdapter = {
         system_instruction: { parts: [{ text: system }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: {
+          // Generous for an 18-token answer, because reasoning tokens count
+          // against this ceiling too — a tight limit truncates the rewrite
+          // before it starts.
           maxOutputTokens: 2048,
           // Low temperature: a rewrite should stay close to the facts it was
           // given, not wander off inventing new ones.
           temperature: 0.4,
-          // A single-field rewrite doesn't need reasoning, and the budget
-          // counts against maxOutputTokens.
-          thinkingConfig: { thinkingBudget: 0 },
+          // The least reasoning on offer. Rewriting one field doesn't need it,
+          // and it's the difference between a snappy button and a slow one.
+          thinkingConfig: { thinkingLevel: "minimal" },
         },
       },
       signal
