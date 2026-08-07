@@ -56,6 +56,7 @@ export default function CertificationsEditorPage() {
         itemTitle={(item) => item.title}
         itemSubtitle={(item) => item.issuer}
         addLabel="Add certification"
+        aiContext="a certification on someone's portfolio"
         emptyLabel="Add your certifications."
       />
     </SectionEditorShell>

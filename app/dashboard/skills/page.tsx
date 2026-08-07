@@ -66,6 +66,7 @@ export default function SkillsEditorPage() {
         itemTitle={(item) => item.name}
         itemSubtitle={(item) => `${item.category} · ${item.level}%`}
         addLabel="Add skill"
+        aiContext="a skill on someone's portfolio"
         emptyLabel="Add the skills you want to showcase."
       />
     </SectionEditorShell>

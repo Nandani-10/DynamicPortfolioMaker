@@ -48,6 +48,7 @@ export default function AchievementsEditorPage() {
         itemTitle={(item) => item.title}
         itemSubtitle={(item) => item.date}
         addLabel="Add achievement"
+        aiContext="an achievement on someone's portfolio"
         emptyLabel="Add your achievements."
       />
     </SectionEditorShell>
