@@ -17,20 +17,24 @@ export interface AiSettings {
 
 export const PROVIDER_INFO: Record<
   AiProvider,
-  { label: string; cost: string; keyUrl: string; keyPrefix: string; note: string }
+  { label: string; cost: string; keyUrl: string; keyPlaceholder: string; note: string }
 > = {
   gemini: {
     label: "Google Gemini",
     cost: "Free tier",
     keyUrl: "https://aistudio.google.com/apikey",
-    keyPrefix: "AIza…",
+    // Google issues keys in two shapes — older `AIza…` and newer `AQ.…` — so
+    // the placeholder describes the field rather than naming one prefix. The
+    // key is never validated by prefix anywhere; only the API can say whether
+    // it works, and a client-side format check would reject valid new keys.
+    keyPlaceholder: "Paste your Gemini API key",
     note: "Free to use with generous daily limits and no card required. Good enough for writing help and rewrites.",
   },
   anthropic: {
     label: "Anthropic Claude",
     cost: "Paid",
     keyUrl: "https://console.anthropic.com/settings/keys",
-    keyPrefix: "sk-ant-…",
+    keyPlaceholder: "sk-ant-…",
     note: "Noticeably better writing, but there is no free tier — usage is billed to your Anthropic account (fractions of a cent per rewrite).",
   },
 };
