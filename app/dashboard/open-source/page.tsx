@@ -60,6 +60,7 @@ export default function OpenSourceEditorPage() {
         itemTitle={(item) => item.repo}
         itemSubtitle={(item) => item.role}
         addLabel="Add contribution"
+        aiContext="an open-source contribution on someone's portfolio"
         emptyLabel="Add your open source contributions."
       />
     </SectionEditorShell>

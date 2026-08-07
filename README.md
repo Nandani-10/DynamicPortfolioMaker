@@ -17,10 +17,37 @@ Built with Next.js (App Router), Firebase (Auth + Firestore), Cloudinary
   images, and resume PDF
 - Five curated color themes with light/dark mode
 - Publish/unpublish toggle with a copyable public link
+- Resume import: upload a PDF and have education, experience, skills and
+  contact details parsed out and reviewed side by side before they land
+- Optional AI assistant: a chat panel for writing help plus a "Rewrite
+  with AI" control on every long-form field (see below)
 - Animated public portfolio page: typing effect, particle/gradient
   background, scroll reveals, tilt cards, magnetic buttons, count-up
-  stats, timeline animations, glassmorphism, and more
+  stats, timeline animations, glassmorphism, an infinite 3D project
+  gallery with Lenis smooth scrolling, and more
 - Deploys as a static site, so it runs on Firebase's free Spark plan
+
+## AI features (optional, bring your own key)
+
+The assistant and the rewrite buttons are off until you add an API key in
+the dashboard (open **Ask AI** in the bottom-right corner). Two providers
+are supported:
+
+| Provider | Cost | Get a key |
+| --- | --- | --- |
+| Google Gemini | Free tier, no card required | <https://aistudio.google.com/apikey> |
+| Anthropic Claude | Paid, billed to your account | <https://console.anthropic.com/settings/keys> |
+
+The key is stored in **localStorage on that browser only** and is sent
+straight to the provider from the browser. It is deliberately never
+written to Firestore: `portfolios/{username}` is world-readable — that is
+what makes the public page load without auth — so a key saved there would
+be published along with the portfolio. It also means the key isn't synced
+between devices, and anyone with access to the machine can read it, so use
+a key you're willing to rotate.
+
+There is no shared key and no server-side proxy, because the app is a
+static export with no backend of its own.
 
 ## Getting started locally
 
