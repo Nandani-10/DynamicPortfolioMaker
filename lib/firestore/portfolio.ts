@@ -54,14 +54,19 @@ export async function claimUsernameAndCreatePortfolio(params: {
     if (existingPortfolio.exists()) {
       throw new Error("USERNAME_TAKEN");
     }
-    tx.set(portfolioRef(username), newPortfolio);
-    tx.set(userRef(uid), {
-      uid,
-      username,
-      email,
-      displayName,
-      createdAt: Date.now(),
-    } satisfies UserProfile);
+    // Same guard as updatePortfolio: a caller with no displayName or email
+    // would otherwise fail the whole claim on an `undefined`.
+    tx.set(portfolioRef(username), stripUndefined(newPortfolio));
+    tx.set(
+      userRef(uid),
+      stripUndefined({
+        uid,
+        username,
+        email,
+        displayName,
+        createdAt: Date.now(),
+      } satisfies UserProfile)
+    );
   });
 
   return newPortfolio;
@@ -81,12 +86,44 @@ export async function getPortfolioOnce(username: string): Promise<Portfolio | nu
   return snap.exists() ? (snap.data() as Portfolio) : null;
 }
 
+/**
+ * Removes `undefined` values, at any depth.
+ *
+ * Firestore rejects the whole write if a single `undefined` appears anywhere
+ * in it — "Unsupported field value: undefined" — and the error names the
+ * document, not the field, so there's nothing to go on when it fires.
+ *
+ * Most of the portfolio's fields are optional, and in TypeScript an absent
+ * optional field reads as `undefined`, so anything that builds an item from
+ * incomplete input produces one naturally. Stripping here means every editor
+ * is covered, rather than each one having to remember.
+ *
+ * Dropping the key is the correct reading of "no value": these are optional
+ * fields, and the objects and arrays around them are always written whole, so
+ * an absent key can't leave a stale value behind.
+ */
+function stripUndefined<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((entry) => stripUndefined(entry)) as T;
+  }
+  // Plain objects only — anything else (a Date, a Firestore sentinel) has to
+  // reach the SDK intact.
+  if (value === null || typeof value !== "object") return value;
+  if (Object.getPrototypeOf(value) !== Object.prototype) return value;
+
+  const result: Record<string, unknown> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (entry !== undefined) result[key] = stripUndefined(entry);
+  }
+  return result as T;
+}
+
 export async function updatePortfolio(
   username: string,
   data: Partial<Portfolio>
 ): Promise<void> {
   await updateDoc(portfolioRef(username), {
-    ...data,
+    ...stripUndefined(data),
     updatedAt: Date.now(),
   });
 }
