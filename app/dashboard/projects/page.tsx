@@ -68,6 +68,7 @@ export default function ProjectsEditorPage() {
         itemTitle={(item) => item.title}
         itemSubtitle={(item) => item.techStack.join(", ")}
         addLabel="Add project"
+        aiContext="a project on a developer's portfolio"
         emptyLabel="Add your first project."
       />
     </SectionEditorShell>

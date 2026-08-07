@@ -50,6 +50,7 @@ export default function TestimonialsEditorPage() {
         itemTitle={(item) => item.name}
         itemSubtitle={(item) => item.company}
         addLabel="Add testimonial"
+        aiContext="a testimonial someone wrote about the portfolio owner"
         emptyLabel="Add testimonials from others."
       />
     </SectionEditorShell>

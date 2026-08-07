@@ -16,6 +16,7 @@ import { SectionHeading } from "@/components/sections/SectionHeading";
 import { StaggerGroup, StaggerItem } from "@/components/effects/ScrollReveal";
 import { FlipCard } from "@/components/effects/FlipCard";
 import { SpotlightCard } from "@/components/effects/SpotlightCard";
+import { ProjectMarquee } from "@/components/sections/ProjectMarquee";
 import { ProjectDetailModal } from "@/components/sections/ProjectDetailModal";
 import type { ProjectItem } from "@/types/portfolio";
 
@@ -259,6 +260,10 @@ export function ProjectsSection({
         title={title ?? "Projects"}
         description="A few things I've designed, built, and shipped. Click any card to see how it was built."
       />
+
+      {/* Ambient showcase band above the grid — the same projects, read as a
+          gallery rather than a list. Renders nothing under four thumbnails. */}
+      <ProjectMarquee projects={items} onOpen={(project) => openProject(project.id)} />
 
       {filters.length > 0 && (
         <div className="mb-8 flex flex-wrap justify-center gap-2">
