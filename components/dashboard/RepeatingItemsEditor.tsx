@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronDown, GripVertical, Plus, Trash2 } from "lucide-react";
 import { Field, TextArea, TextInput } from "@/components/dashboard/fields";
 import { ImageUploader } from "@/components/dashboard/ImageUploader";
+import { RewriteWithAi } from "@/components/dashboard/RewriteWithAi";
 import type { UploadFolder } from "@/lib/cloudinary/folders";
 
 export type FieldType =
@@ -36,6 +37,12 @@ interface RepeatingItemsEditorProps<T extends { id: string }> {
   itemSubtitle?: (item: T) => string | undefined;
   addLabel?: string;
   emptyLabel?: string;
+  /**
+   * What one of these items is, in a few words ("a project on a developer's
+   * portfolio"). Free-text fields offer an AI rewrite, and this is the only
+   * thing telling the model what register the text should be in.
+   */
+  aiContext?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,6 +57,7 @@ export function RepeatingItemsEditor<T extends { id: string }>({
   itemSubtitle,
   addLabel = "Add item",
   emptyLabel = "Nothing added yet.",
+  aiContext,
 }: RepeatingItemsEditorProps<T>) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -215,6 +223,16 @@ export function RepeatingItemsEditor<T extends { id: string }>({
                             }
                           />
                         </Field>
+                        {aiContext && (
+                          <RewriteWithAi
+                            label={field.label}
+                            description={`The "${field.label}" of ${aiContext}.`}
+                            value={typeof value === "string" ? value : ""}
+                            onApply={(text) =>
+                              updateItem(item.id, { [field.key]: text })
+                            }
+                          />
+                        )}
                       </div>
                     );
                   }

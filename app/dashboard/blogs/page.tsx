@@ -47,6 +47,7 @@ export default function BlogsEditorPage() {
         itemTitle={(item) => item.title}
         itemSubtitle={(item) => item.publishedAt}
         addLabel="Add blog / publication"
+        aiContext="a blog post or publication listed on someone's portfolio"
         emptyLabel="Add your writing."
       />
     </SectionEditorShell>

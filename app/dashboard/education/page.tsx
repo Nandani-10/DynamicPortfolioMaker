@@ -57,6 +57,7 @@ export default function EducationEditorPage() {
         itemTitle={(item) => item.degree || item.institution}
         itemSubtitle={(item) => item.institution}
         addLabel="Add education"
+        aiContext="an education entry on someone's portfolio"
         emptyLabel="Add your degrees and courses."
       />
     </SectionEditorShell>

@@ -60,6 +60,7 @@ export default function ExperienceEditorPage() {
         itemTitle={(item) => item.role || item.company}
         itemSubtitle={(item) => item.company}
         addLabel="Add experience"
+        aiContext="a job or role on someone's portfolio"
         emptyLabel="Add your work history."
       />
     </SectionEditorShell>

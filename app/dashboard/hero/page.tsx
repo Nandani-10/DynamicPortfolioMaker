@@ -6,6 +6,7 @@ import { useOwnerPortfolio } from "@/hooks/usePortfolio";
 import { useLocalSectionState } from "@/hooks/useLocalSectionState";
 import { SectionEditorShell } from "@/components/dashboard/SectionEditorShell";
 import { Field, TextArea, TextInput } from "@/components/dashboard/fields";
+import { RewriteWithAi } from "@/components/dashboard/RewriteWithAi";
 import { ImageUploader } from "@/components/dashboard/ImageUploader";
 import { Plus, Trash2 } from "lucide-react";
 import type { HeroContent } from "@/types/portfolio";
@@ -107,6 +108,12 @@ export default function HeroEditorPage() {
           placeholder="A short, punchy line about what you do."
         />
       </Field>
+      <RewriteWithAi
+        label="Hero introduction"
+        description="The first line a visitor reads under the name on a portfolio homepage. One or two sentences, punchy."
+        value={hero.intro}
+        onApply={(intro) => patch({ intro })}
+      />
 
       <div>
         <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">

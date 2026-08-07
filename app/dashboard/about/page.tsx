@@ -6,6 +6,7 @@ import { useOwnerPortfolio } from "@/hooks/usePortfolio";
 import { useLocalSectionState } from "@/hooks/useLocalSectionState";
 import { SectionEditorShell } from "@/components/dashboard/SectionEditorShell";
 import { Field, TextArea, TextInput } from "@/components/dashboard/fields";
+import { RewriteWithAi } from "@/components/dashboard/RewriteWithAi";
 import { FileUploader } from "@/components/dashboard/FileUploader";
 import { ResumeImport } from "@/components/dashboard/ResumeImport";
 import type { AboutContent } from "@/types/portfolio";
@@ -50,6 +51,12 @@ export default function AboutEditorPage() {
           placeholder="Write a couple of paragraphs about who you are, your journey, and what you care about."
         />
       </Field>
+      <RewriteWithAi
+        label="About bio"
+        description="The 'About me' section of a portfolio: a couple of paragraphs on who the person is, their journey, and what they care about."
+        value={about.bio}
+        onApply={(bio) => setAbout({ ...about, bio })}
+      />
 
       <div>
         <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
