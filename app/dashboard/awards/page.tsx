@@ -46,6 +46,7 @@ export default function AwardsEditorPage() {
         itemTitle={(item) => item.title}
         itemSubtitle={(item) => item.issuer}
         addLabel="Add award"
+        aiContext="an award on someone's portfolio"
         emptyLabel="Add awards and recognitions."
       />
     </SectionEditorShell>

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { LogOut, Menu, X, ExternalLink } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LivePreview } from "@/components/dashboard/LivePreview";
+import { AiAssistant } from "@/components/dashboard/AiAssistant";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { DASHBOARD_NAV } from "@/lib/dashboard-nav";
 import type { ReactNode } from "react";
@@ -124,6 +125,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         <div className="mx-auto w-full max-w-3xl">{children}</div>
       </main>
 
+      <AiAssistant />
       <LivePreview />
     </div>
   );
