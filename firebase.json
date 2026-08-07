@@ -4,6 +4,13 @@
     "public": "out",
     "cleanUrls": true,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "//": "The pdf.js worker used by resume import ships as .mjs. A wrong Content-Type makes the browser refuse it as a module, and the failure surfaces only as a broken import with nothing useful in the console.",
+        "source": "**/*.mjs",
+        "headers": [{ "key": "Content-Type", "value": "text/javascript; charset=utf-8" }]
+      }
+    ],
     "rewrites": [
       {
         "//": "Single-segment paths that match no real file are public portfolio URLs (/janedoe). Hosting checks static files first, so /login and /dashboard still win.",
