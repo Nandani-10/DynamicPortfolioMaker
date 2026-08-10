@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowUp, Sparkles, Square, X } from "lucide-react";
+import { AlertCircle, ArrowUp, Settings2, Sparkles, Square, X } from "lucide-react";
 import { useAiSettings } from "@/hooks/useAiSettings";
 import { streamAssistantReply, type ChatMessage } from "@/lib/ai/tasks";
 import { AiKeyForm } from "@/components/dashboard/AiKeyForm";
+import { InsertReply } from "@/components/dashboard/InsertReply";
 
 const SUGGESTIONS = [
   "How should I describe a project I built alone?",
@@ -17,6 +18,7 @@ const SUGGESTIONS = [
 export function AiAssistant() {
   const { settings, hasKey } = useAiSettings();
   const [open, setOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -111,6 +113,17 @@ export function AiAssistant() {
                 </div>
                 <button
                   type="button"
+                  onClick={() => setShowSettings((v) => !v)}
+                  aria-label="AI settings"
+                  aria-pressed={showSettings}
+                  className={`shrink-0 rounded-lg p-2 hover:bg-[var(--surface-alt)] ${
+                    showSettings ? "text-[var(--accent-2)]" : "text-[var(--text-muted)]"
+                  }`}
+                >
+                  <Settings2 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
                   onClick={() => setOpen(false)}
                   aria-label="Close"
                   className="shrink-0 rounded-lg p-2 text-[var(--text-muted)] hover:bg-[var(--surface-alt)] hover:text-[var(--text)]"
@@ -119,7 +132,7 @@ export function AiAssistant() {
                 </button>
               </header>
 
-              {!hasKey ? (
+              {!hasKey || showSettings ? (
                 <div className="flex-1 overflow-y-auto p-4">
                   <AiKeyForm />
                 </div>
@@ -144,23 +157,33 @@ export function AiAssistant() {
                       </div>
                     )}
 
-                    {messages.map((message, index) => (
-                      <div
-                        key={index}
-                        className={message.role === "user" ? "flex justify-end" : ""}
-                      >
+                    {messages.map((message, index) => {
+                      const isLast = index === messages.length - 1;
+                      return (
                         <div
-                          className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                            message.role === "user"
-                              ? "bg-[linear-gradient(120deg,var(--accent-2),var(--accent-3))] text-white"
-                              : "bg-[var(--surface-alt)]"
-                          }`}
+                          key={index}
+                          className={message.role === "user" ? "flex justify-end" : ""}
                         >
-                          {message.content ||
-                            (streaming && index === messages.length - 1 ? "…" : "")}
+                          <div
+                            className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                              message.role === "user"
+                                ? "bg-[linear-gradient(120deg,var(--accent-2),var(--accent-3))] text-white"
+                                : "bg-[var(--surface-alt)]"
+                            }`}
+                          >
+                            {message.content || (streaming && isLast ? "…" : "")}
+                          </div>
+                          {/* Offered once the reply is complete — inserting a
+                              half-streamed sentence into a field is never what
+                              someone means by "use this". */}
+                          {message.role === "assistant" &&
+                            message.content &&
+                            !(streaming && isLast) && (
+                              <InsertReply text={message.content} />
+                            )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
 
                     {error && (
                       <p className="flex items-start gap-1.5 text-xs text-red-400">

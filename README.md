@@ -19,35 +19,57 @@ Built with Next.js (App Router), Firebase (Auth + Firestore), Cloudinary
 - Publish/unpublish toggle with a copyable public link
 - Resume import: upload a PDF and have education, experience, skills and
   contact details parsed out and reviewed side by side before they land
-- Optional AI assistant: a chat panel for writing help plus a "Rewrite
-  with AI" control on every long-form field (see below)
+- AI assistant: a chat panel for writing help, a "Rewrite with AI" control
+  on every long-form field, and a "Use this" button that inserts a reply
+  straight into a field (see below)
+- Publish state, public link, and publish/unpublish reachable from the top
+  of every dashboard page
 - Animated public portfolio page: typing effect, particle/gradient
   background, scroll reveals, tilt cards, magnetic buttons, count-up
   stats, timeline animations, glassmorphism, an infinite 3D project
   gallery with Lenis smooth scrolling, and more
 - Deploys as a static site, so it runs on Firebase's free Spark plan
 
-## AI features (optional, bring your own key)
+## AI features
 
-The assistant and the rewrite buttons are off until you add an API key in
-the dashboard (open **Ask AI** in the bottom-right corner). Two providers
-are supported:
+A chat assistant (**Ask AI**, bottom-right of the dashboard) and a
+**Rewrite with AI** control under every long-form field. Each assistant
+reply carries a **Use this** button that drops the text straight into a
+field on the page you're on.
+
+### Supplying a key
+
+Either the site supplies one for everyone, or each owner brings their own.
+
+**Shared key (`NEXT_PUBLIC_GEMINI_API_KEY`)** — set it and AI works for
+every visitor with nothing to configure. Understand the trade first:
+`NEXT_PUBLIC_*` values are inlined into the JavaScript bundle, and this is
+a static export with no server to hide a secret behind. **Anyone who opens
+devtools on the deployed site can read that key and spend its quota.**
+
+If you set it, restrict it in Google Cloud Console → Credentials → the key
+→ Application restrictions → Websites, listing only your own domains. That
+blocks casual reuse from other origins. It is not airtight — a referrer
+header can be forged — so never point it at a key on a billed account. The
+only way to hold a key that genuinely can't be read is to put a small
+server-side proxy in front of it, which this deployment doesn't have.
+
+**Own key** — leave the variable empty and each owner adds a key in the
+dashboard. An owner's own key always takes precedence over the shared one,
+so they can move their usage off it at any time. Two providers:
 
 | Provider | Cost | Get a key |
 | --- | --- | --- |
 | Google Gemini | Free tier, no card required | <https://aistudio.google.com/apikey> |
 | Anthropic Claude | Paid, billed to your account | <https://console.anthropic.com/settings/keys> |
 
-The key is stored in **localStorage on that browser only** and is sent
-straight to the provider from the browser. It is deliberately never
+An owner's own key is stored in **localStorage on that browser only** and
+is sent straight to the provider from the browser. It is deliberately never
 written to Firestore: `portfolios/{username}` is world-readable — that is
 what makes the public page load without auth — so a key saved there would
 be published along with the portfolio. It also means the key isn't synced
 between devices, and anyone with access to the machine can read it, so use
 a key you're willing to rotate.
-
-There is no shared key and no server-side proxy, because the app is a
-static export with no backend of its own.
 
 ## Getting started locally
 
@@ -105,7 +127,7 @@ manual/local `firebase deploy` step in the intended workflow.
 2. In `.firebaserc`, replace `REPLACE_WITH_YOUR_FIREBASE_PROJECT_ID` with
    your actual Firebase project ID.
 3. In your GitHub repo → **Settings → Secrets and variables → Actions**,
-   add these 9 repository secrets:
+   add these repository secrets:
 
    | Secret | Where it comes from |
    | --- | --- |
@@ -118,6 +140,7 @@ manual/local `firebase deploy` step in the intended workflow.
    | `NEXT_PUBLIC_FIREBASE_APP_ID` | same web app config |
    | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary Console → Dashboard |
    | `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Name of the *unsigned* upload preset you created |
+   | `NEXT_PUBLIC_GEMINI_API_KEY` | *Optional.* A shared Gemini key so AI works for everyone — read the warning under [AI features](#ai-features) first, since it ends up readable in the deployed bundle. Omit it and each owner supplies their own. |
 
    The Hosting project/site the deploy targets comes from `.firebaserc` and
    `firebase.json`, so no separate project-ID secret is needed.

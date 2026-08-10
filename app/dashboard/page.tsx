@@ -9,11 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { PageFadeIn } from "@/components/effects/PageFadeIn";
 import { DASHBOARD_NAV } from "@/lib/dashboard-nav";
 import { burst } from "@/lib/confetti";
-
-function useSiteOrigin() {
-  if (typeof window === "undefined") return "";
-  return window.location.origin;
-}
+import { useSiteOrigin } from "@/hooks/useSiteOrigin";
 
 export default function DashboardOverview() {
   const { profile } = useAuth();
