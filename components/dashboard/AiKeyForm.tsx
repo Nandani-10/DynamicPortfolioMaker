@@ -32,11 +32,20 @@ export function AiKeyForm() {
       <p className="mb-1 flex items-center gap-2 text-sm font-medium">
         <KeyRound className="h-4 w-4 text-[var(--accent-2)]" /> AI provider
       </p>
-      <p className="mb-3 text-xs leading-relaxed text-[var(--text-muted)]">
-        The AI features call the provider directly from your browser using your
-        own key. Your portfolio is a static site with no server of its own, so
-        there&apos;s nowhere to keep a shared key.
-      </p>
+      {settings.usingSharedKey ? (
+        <p className="mb-3 text-xs leading-relaxed text-[var(--text-muted)]">
+          AI is ready to use — this site supplies a Gemini key, so you
+          don&apos;t need one. It&apos;s shared with everyone using the site
+          and has a daily limit, so add your own below if you hit it or want
+          your usage kept separate.
+        </p>
+      ) : (
+        <p className="mb-3 text-xs leading-relaxed text-[var(--text-muted)]">
+          The AI features call the provider directly from your browser using
+          your own key. Your portfolio is a static site with no server of its
+          own, so there&apos;s nowhere to keep one for you.
+        </p>
+      )}
 
       <div className="mb-3 grid gap-2 sm:grid-cols-2">
         {PROVIDERS.map((provider) => {
@@ -88,7 +97,9 @@ export function AiKeyForm() {
         .
       </p>
 
-      {hasKey ? (
+      {/* The shared key isn't theirs to see or remove, so that state offers the
+          input instead of masking a key they never entered. */}
+      {hasKey && !settings.usingSharedKey ? (
         <div className="flex items-center gap-3">
           <code className="flex-1 truncate rounded-lg bg-[var(--surface)] px-3 py-2 text-xs">
             {mask(settings.apiKey)}

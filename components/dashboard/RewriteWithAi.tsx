@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Check, Loader2, RotateCcw, Sparkles, X } from "lucide-react";
 import { useAiSettings } from "@/hooks/useAiSettings";
+import { useRegisterAiField } from "@/lib/ai/field-registry";
 import { rewriteField } from "@/lib/ai/tasks";
 import { AiKeyForm } from "@/components/dashboard/AiKeyForm";
 import { TextArea } from "@/components/dashboard/fields";
@@ -32,6 +33,7 @@ export function RewriteWithAi({
   label,
   description,
   value,
+  context,
   onApply,
 }: {
   /** How the field is named in the dashboard, e.g. "About — bio". */
@@ -39,9 +41,16 @@ export function RewriteWithAi({
   /** One line on what the field is for, so the model picks the right register. */
   description: string;
   value: string;
+  /** Which item this belongs to, when a page repeats the same field. */
+  context?: string;
   onApply: (text: string) => void;
 }) {
   const { settings, hasKey } = useAiSettings();
+
+  // Every field that can be rewritten can also receive a reply from the chat
+  // panel, so registering here covers both without a second call site.
+  useRegisterAiField({ label, context, apply: onApply });
+
   const [open, setOpen] = useState(false);
   const [instruction, setInstruction] = useState("");
   const [busy, setBusy] = useState(false);

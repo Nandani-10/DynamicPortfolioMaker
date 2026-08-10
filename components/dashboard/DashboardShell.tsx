@@ -7,6 +7,7 @@ import { LogOut, Menu, X, ExternalLink } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LivePreview } from "@/components/dashboard/LivePreview";
 import { AiAssistant } from "@/components/dashboard/AiAssistant";
+import { PublishBar } from "@/components/dashboard/PublishBar";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { DASHBOARD_NAV } from "@/lib/dashboard-nav";
 import type { ReactNode } from "react";
@@ -121,7 +122,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         />
       )}
 
-      <main className="min-w-0 flex-1 px-5 pb-24 pt-20 sm:px-8 md:pt-10">
+      <main className="min-w-0 flex-1 px-5 pb-24 pt-16 sm:px-8 md:pt-4">
+        <PublishBar />
         <div className="mx-auto w-full max-w-3xl">{children}</div>
       </main>
 

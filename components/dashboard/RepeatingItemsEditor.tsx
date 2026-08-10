@@ -226,6 +226,10 @@ export function RepeatingItemsEditor<T extends { id: string }>({
                         {aiContext && (
                           <RewriteWithAi
                             label={field.label}
+                            // Several items share a field label, so the chat
+                            // panel needs the item's own name to tell its
+                            // insert targets apart.
+                            context={itemTitle(item)}
                             description={`The "${field.label}" of ${aiContext}.`}
                             value={typeof value === "string" ? value : ""}
                             onApply={(text) =>
