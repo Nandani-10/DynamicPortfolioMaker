@@ -41,7 +41,14 @@ export async function uploadToCloudinary(
   formData.append("upload_preset", UPLOAD_PRESET);
   formData.append("folder", `dynamic-portfolio-maker/${folder}`);
 
-  const resourceType = file.type === "application/pdf" ? "raw" : "image";
+  // Cloudinary files audio and video under the same "video" resource type;
+  // sending a voice note as an image upload fails outright.
+  const resourceType =
+    file.type === "application/pdf"
+      ? "raw"
+      : file.type.startsWith("audio/") || file.type.startsWith("video/")
+        ? "video"
+        : "image";
   const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;
 
   return new Promise<CloudinaryUploadResult>((resolve, reject) => {

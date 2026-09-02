@@ -10,6 +10,8 @@ Built with Next.js (App Router), Firebase (Auth + Firestore), Cloudinary
 ## Features
 
 - Google sign-in (Firebase Auth), one portfolio per account
+- "Us": a separate, invite-nobody private space at `/us` for two people —
+  see [its own section](#us--the-private-space-at-us)
 - Dashboard editors for Hero, About, Education, Experience, Skills,
   Projects, Certifications, Awards, Achievements, Open Source, Blogs,
   Testimonials, Contact & Social, and Theme
@@ -172,17 +174,21 @@ app/
   onboarding/           Username claim flow (first login)
   dashboard/            Auth-guarded editor (one route per section)
   portfolio/            Public portfolio page; Hosting rewrites /{username} here
+  us/                   "Us" — the private two-person space (see below)
 components/
   hero/, sections/      Public portfolio building blocks
   effects/              Reusable animation primitives
   dashboard/            Editor shell + generic CRUD list editor
   portfolio/            Theme/nav wrappers for the public page
+  us/                   Everything the private space is made of
 lib/
   firebase/             Client SDK init
   firestore/             Firestore data access
   cloudinary/            Unsigned browser-upload helper
   themes.ts             Color preset definitions
+  us/                   Space config, Firestore access, prompt banks, drawing
 types/portfolio.ts       Shared data model
+types/us.ts              Data model for the private space
 firestore.rules          Firestore security rules
 ```
 
@@ -194,3 +200,58 @@ Each portfolio is a single Firestore document at `portfolios/{username}`
 `users/{uid}` document maps an authenticated owner to their claimed
 username. Firestore rules restrict writes to the document's `ownerUid`
 while keeping `portfolios/*` publicly readable.
+
+## "Us" — the private space at `/us`
+
+A second, self-contained app living in the same deployment: a small private
+world for exactly two people. It is built around the idea that neither person
+should have to invent something to say — a morning and a night that play as
+little films, doodles that replay stroke by stroke, moods, thoughts left to be
+found later, blind-answer games, a memory wall, countdowns, and an "I want to
+talk, but I don't know how" mode that writes the message for you.
+
+The palette follows the clock (dawn → day → evening → night) instead of a
+light/dark toggle, and every animation stands down under
+`prefers-reduced-motion`.
+
+### Locking it to two people
+
+1. **`NEXT_PUBLIC_US_EMAILS`** — the two Google addresses, comma-separated.
+2. **`firestore.rules`** — put the *same* two addresses in `coupleEmails()`.
+   This is the real lock: the env var only shapes what the app shows, while
+   the rules are what stops anyone else from reading or writing the data. The
+   file ships with placeholder addresses, which locks everybody out until you
+   edit it — the safe way to fail.
+3. **`NEXT_PUBLIC_US_PIN`** *(optional)* — a shared PIN, asked once every 12
+   hours per device. A curtain for an already-unlocked phone, not a vault:
+   `NEXT_PUBLIC_*` values are readable in the bundle.
+
+Photos, voice notes and memory images go through the same unsigned Cloudinary
+upload as the rest of the app; without those two env vars the space still
+works, minus media.
+
+### Data model
+
+Everything lives under one document tree so a single rules block can gate it:
+
+```
+spaces/{spaceId}
+  members/{uid}       name, avatar, colour, status, mood, presence, typing
+  messages/{id}       text · morning · night · hug · drawing · photo · voice ·
+                      thought · mood · question · surprise, plus reactions
+  thoughts/{id}       notes left to be discovered later
+  memories/{id}       the memory-wall timeline
+  rounds/{id}         This or That / Would You Rather / Two Truths (blind)
+  days/{YYYY-MM-DD}   morning + night greetings, and the daily check-in
+```
+
+Drawings are stored as normalized stroke points rather than images, which is
+what makes the replay animation possible (and keeps them tiny).
+
+### Developing against the emulators
+
+Set `NEXT_PUBLIC_FIREBASE_EMULATORS=1` in `.env.local` and run
+`firebase emulators:start --only auth,firestore` — the client then talks to
+auth on `:9099` and Firestore on `:8080`, so work in progress never touches
+real data. The emulator loads `firestore.rules`, so access rules are exercised
+too.
