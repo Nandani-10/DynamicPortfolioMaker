@@ -220,25 +220,35 @@ light/dark toggle, and every animation stands down under
 
 ### Locking it to two people
 
-1. **`NEXT_PUBLIC_US_EMAILS`** — the two Google addresses, comma-separated.
-2. **`firestore.rules`** — put the *same* two addresses in `coupleEmails()`.
-   This is the real lock: the env var only shapes what the app shows, while
-   the rules are what stops anyone else from reading or writing the data. The
-   file ships with placeholder addresses, which locks everybody out until you
-   edit it — the safe way to fail.
-3. **`NEXT_PUBLIC_US_PIN`** *(optional)* — a shared PIN, asked once every 12
-   hours per device. A curtain for an already-unlocked phone, not a vault:
-   `NEXT_PUBLIC_*` values are readable in the bundle.
+The guest list lives in **`firestore.rules`** and nowhere else. It holds the
+SHA-256 of each address rather than the address itself, because this
+repository is public and a rules file would otherwise publish both owners'
+email addresses in plain text:
+
+```
+printf '%s' 'their@address.com' | openssl dgst -sha256 -binary | base64
+```
+
+Put the two digests in `coupleEmailHashes()`. The app is never told who is on
+the list — it tries to read the space and reports the refusal — so nothing
+identifying reaches the deployed JavaScript, and there is no client-side check
+to bypass.
+
+This is not a strong secret: someone who already suspects an address can
+confirm it by hashing it. It keeps the addresses out of search results,
+scrapers and the bundle, which is what a hash can honestly do here.
+
+**`NEXT_PUBLIC_US_PIN`** *(optional)* — a shared PIN, asked once every 12
+hours per device. A curtain for an already-unlocked phone, not a vault:
+`NEXT_PUBLIC_*` values are readable in the bundle.
 
 Photos, voice notes and memory images go through the same unsigned Cloudinary
 upload as the rest of the app; without those two env vars the space still
 works, minus media.
 
-For the deployed site, `NEXT_PUBLIC_US_EMAILS` (and optionally
-`NEXT_PUBLIC_US_SPACE_ID` / `NEXT_PUBLIC_US_PIN`) go in
-**Settings → Secrets and variables → Actions**, like the other
-`NEXT_PUBLIC_*` values. They are optional: unset, `/us` just shows its setup
-screen and nothing else on the site changes.
+`NEXT_PUBLIC_US_SPACE_ID` and `NEXT_PUBLIC_US_PIN` are optional repository
+secrets (**Settings → Secrets and variables → Actions**); no secret is needed
+to open the space, since access is settled by the rules.
 
 Note that pull-request previews deliberately don't deploy Firestore rules, so
 `/us` on a preview channel can sign you in but not read or write anything —

@@ -15,19 +15,32 @@ service cloud.firestore {
 
     // spaces/{spaceId} — the private couple space at /us.
     //
-    // ⚠️ EDIT THIS LIST. Put the same two Google addresses here that you set in
-    // NEXT_PUBLIC_US_EMAILS. The app checks them too, but only this rule is
-    // enforceable: without it, anyone signed in could read the whole space.
-    // Leaving the placeholders in place locks everybody out, which is the safe
-    // way to fail.
-    function coupleEmails() {
-      return ['partner-one@example.com', 'partner-two@example.com'];
+    // Matched on the SHA-256 of the signed-in address rather than the address
+    // itself: this repository is public, and a rules file is the one place a
+    // private space would otherwise have to publish both owners' email
+    // addresses in plain text. The app never sees this list at all — it finds
+    // out whether it is welcome by trying to read the space and handling the
+    // refusal, so nothing here is inlined into the deployed JavaScript either.
+    //
+    // To change who gets in, replace a digest below with:
+    //   printf '%s' 'their@address.com' | openssl dgst -sha256 -hex
+    // (lower-case the address first — the rule lower-cases what it compares).
+    //
+    // Note it is the *hex* digest that is compared: rules also offer
+    // toBase64(), but its output does not match a base64-encoded SHA-256, and
+    // a mismatch here fails closed and silently locks you both out.
+    function coupleEmailHashes() {
+      return [
+        '2fd5027b9f7a445bed3081cf2fa6e0063b415bf62c4192fa00763e6d4551ff46',
+        'bf8ceafb121520aca1ec4c2498b5ea1baf932b3e9b18431f331e8abbf1c280de',
+      ];
     }
 
     function isPartner() {
       return request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email.lower() in coupleEmails();
+        && hashing.sha256(request.auth.token.email.lower()).toHexString().lower()
+             in coupleEmailHashes();
     }
 
     match /spaces/{spaceId}/{document=**} {

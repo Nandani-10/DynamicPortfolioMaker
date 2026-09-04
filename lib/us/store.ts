@@ -79,6 +79,23 @@ function millis(value: unknown, fallback = Date.now()): number {
   return fallback;
 }
 
+/**
+ * Asks the database whether this account is one of the two. The rules are the
+ * only guest list, so the honest way to find out is to try: a refusal comes
+ * back as `permission-denied`, while anything else (offline, a broken
+ * project) is a problem to report rather than a closed door.
+ */
+export async function probeAccess(): Promise<"granted" | "denied"> {
+  try {
+    await getDoc(spaceRef());
+    return "granted";
+  } catch (error) {
+    const code = (error as { code?: string })?.code;
+    if (code === "permission-denied") return "denied";
+    throw error;
+  }
+}
+
 // ── Members ────────────────────────────────────────────────────────────────
 
 export async function ensureMember(member: {

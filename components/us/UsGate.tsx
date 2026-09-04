@@ -4,22 +4,24 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { isFirebaseConfigured } from "@/lib/firebase/client";
 import {
-  ALLOWED_EMAILS,
   PIN_STORAGE_KEY,
   PIN_TTL_MS,
   SPACE_PIN,
-  isAllowedEmail,
   isPinEnabled,
-  isSpaceConfigured,
 } from "@/lib/us/config";
+import { probeAccess } from "@/lib/us/store";
 import { UsProvider } from "@/components/us/UsProvider";
 import type { AmbientPhase } from "@/lib/us/ambient";
 
 /**
- * Three locks, in order: Firebase must exist, the signed-in address must be
- * one of the two on the allowlist, and (optionally) a shared PIN unlocks the
- * device for a while. The database rules repeat the second check server-side —
- * this component is only what the two of you actually see.
+ * Three locks, in order: Firebase must exist, the database must recognise the
+ * signed-in account as one of the two, and (optionally) a shared PIN unlocks
+ * the device for a while.
+ *
+ * The second lock is the real one, and it is not enforced here — the rules
+ * decide, and this screen only reports what they said. That keeps both
+ * addresses out of the deployed bundle, and means there is no way to get in by
+ * editing what the browser is running.
  */
 export function UsGate({
   phase,
@@ -34,6 +36,9 @@ export function UsGate({
   const [unlocked, setUnlocked] = useState(!isPinEnabled);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState(false);
+  const [access, setAccess] = useState<"checking" | "granted" | "denied" | "error">(
+    "checking"
+  );
 
   useEffect(() => {
     if (!isPinEnabled) return;
@@ -45,28 +50,32 @@ export function UsGate({
     }
   }, []);
 
-  if (!isFirebaseConfigured || !isSpaceConfigured) {
+  // Ask the rules whether this account belongs here.
+  useEffect(() => {
+    if (!user || !isFirebaseConfigured) return;
+    let cancelled = false;
+    setAccess("checking");
+    probeAccess()
+      .then((result) => {
+        if (!cancelled) setAccess(result);
+      })
+      .catch(() => {
+        if (!cancelled) setAccess("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  if (!isFirebaseConfigured) {
     return (
       <Shell title="Almost there">
         <p className="us-muted text-sm leading-relaxed">
-          This space is closed by default — it only opens for the two addresses you
-          name. Set these before deploying:
+          This space needs a Firebase project to live in. Set the{" "}
+          <code>NEXT_PUBLIC_FIREBASE_*</code> values, and put the two of you in{" "}
+          <code>firestore.rules</code> — that file is the guest list, and until
+          it names you, nobody gets in.
         </p>
-        <ul className="mt-4 space-y-2 text-sm">
-          {!isFirebaseConfigured && (
-            <li className="us-soft p-3">
-              <code>NEXT_PUBLIC_FIREBASE_*</code> — the Firebase web config, so
-              messages have somewhere to live.
-            </li>
-          )}
-          <li className="us-soft p-3">
-            <code>NEXT_PUBLIC_US_EMAILS</code> — your two Google addresses,
-            comma-separated. Repeat the same two in <code>firestore.rules</code>.
-          </li>
-          <li className="us-soft p-3">
-            <code>NEXT_PUBLIC_US_PIN</code> — optional shared PIN for an extra lock.
-          </li>
-        </ul>
       </Shell>
     );
   }
@@ -115,14 +124,39 @@ export function UsGate({
     );
   }
 
-  if (!isAllowedEmail(user.email)) {
+  if (access === "checking") {
+    return (
+      <Shell title="One moment">
+        <p className="us-muted text-sm">Checking whether this space is yours.</p>
+      </Shell>
+    );
+  }
+
+  if (access === "error") {
+    return (
+      <Shell title="Couldn't reach the space">
+        <p className="us-muted max-w-sm text-sm leading-relaxed">
+          The connection failed rather than being refused — usually the network,
+          occasionally the project itself.
+        </p>
+        <button
+          type="button"
+          className="us-primary mt-6"
+          onClick={() => window.location.reload()}
+        >
+          Try again
+        </button>
+      </Shell>
+    );
+  }
+
+  if (access === "denied") {
     return (
       <Shell title="This one isn't yours">
         <p className="us-muted max-w-sm text-sm leading-relaxed">
-          <span className="text-[var(--us-text)]">{user.email}</span> isn&apos;t one of
-          the
-          two accounts this space belongs to
-          {ALLOWED_EMAILS.length === 2 ? "." : ", so there is nothing to show."}
+          <span className="text-[var(--us-text)]">{user.email}</span> isn&apos;t one
+          of the two accounts this space belongs to, so there is nothing here to
+          show.
         </p>
         <button type="button" className="us-chip mt-6" onClick={() => signOut()}>
           Sign out
