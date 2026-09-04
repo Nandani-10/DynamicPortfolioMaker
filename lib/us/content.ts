@@ -63,20 +63,6 @@ export const MESSAGE_CATEGORIES: PromptCategory[] = [
     ],
   },
   {
-    id: "missing",
-    emoji: "🫥",
-    label: "Missing you",
-    lines: [
-      "Missing you a normal, reasonable amount. (Lie.)",
-      "The day would be better with you in it.",
-      "I keep saving things to tell you.",
-      "Wish you were here for this exact moment.",
-      "It's quiet here. You'd fit right in.",
-      "Counting down to the next time.",
-      "It's the ordinary parts I miss most.",
-    ],
-  },
-  {
     id: "random",
     emoji: "😂",
     label: "Random",
@@ -88,6 +74,10 @@ export const MESSAGE_CATEGORIES: PromptCategory[] = [
       "Rate today out of 10. No context needed.",
       "Send me a photo of whatever is closest to you.",
       "Unimportant thought I'm sharing anyway:",
+      "Bet you were thinking about me. Don't lie.",
+      "Guess what I'm doing right now.",
+      "Describe me in three words, no cheating.",
+      "I'm winning today. At what? Unclear.",
     ],
   },
   {
@@ -102,33 +92,11 @@ export const MESSAGE_CATEGORIES: PromptCategory[] = [
       "You're one of the few people I don't have to explain myself to.",
       "Whatever you're carrying today, I'm on your side.",
       "I'm glad it's you.",
-    ],
-  },
-  {
-    id: "deep",
-    emoji: "💭",
-    label: "Deep",
-    lines: [
-      "What's something you've changed your mind about recently?",
-      "What does a good life look like to you, honestly?",
-      "What are you most afraid of about the future?",
-      "What's something you want me to understand about you?",
-      "When do you feel most like yourself?",
-      "What would you want a normal week for us to look like?",
-      "What's something you've never said out loud?",
-    ],
-  },
-  {
-    id: "playful",
-    emoji: "😏",
-    label: "Playful",
-    lines: [
-      "Bet you were thinking about me. Don't lie.",
-      "One compliment. Go. I'll wait.",
-      "You're in trouble. (You're not. But now you're curious.)",
-      "Guess what I'm doing right now.",
-      "Describe me in three words, no cheating.",
-      "I'm winning today. At what? Unclear.",
+      "You handled something hard recently and I noticed.",
+      "Thanks for being patient with me.",
+      "You're kinder than you give yourself credit for.",
+      "You make quiet feel comfortable instead of awkward.",
+      "I like who I am around you.",
     ],
   },
   {
@@ -142,19 +110,6 @@ export const MESSAGE_CATEGORIES: PromptCategory[] = [
       "What are you working on right now?",
       "Give me one sentence about your day.",
       "What's the plan for tonight?",
-    ],
-  },
-  {
-    id: "thanks",
-    emoji: "🌿",
-    label: "Thanks",
-    lines: [
-      "You handled something hard recently and I noticed.",
-      "Thanks for being patient with me.",
-      "I appreciate that you never make me explain twice.",
-      "You're kinder than you give yourself credit for.",
-      "You make quiet feel comfortable instead of awkward.",
-      "I like who I am around you.",
     ],
   },
 ];
@@ -186,6 +141,12 @@ export const CONVERSATION_STARTERS: string[] = [
   "What do you think you'll remember about this year?",
   "What's a food you could eat for the rest of your life?",
   "Anything you've been meaning to say but haven't?",
+  "What's something you've changed your mind about recently?",
+  "What does a good life look like to you, honestly?",
+  "What are you most afraid of about the future?",
+  "What's something you want me to understand about you?",
+  "When do you feel most like yourself?",
+  "What would you want a normal week for us to look like?",
 ];
 
 export const THIS_OR_THAT: { prompt: string; options: [string, string] }[] = [
@@ -311,7 +272,7 @@ export const QUICK_REPLIES = [
   "Tell me more",
   "That's so you 😂",
   "I'm listening",
-  "Missed you today",
+  "Long day here",
   "Call later?",
 ];
 

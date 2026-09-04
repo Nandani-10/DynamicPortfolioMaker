@@ -82,7 +82,7 @@ export function SurpriseBox({ onClose }: { onClose: () => void }) {
           kind: "cute",
           title: "Say this",
           text: pickRandom(
-            MESSAGE_CATEGORIES.find((c) => c.id === "cute")?.lines ?? ["Hi."]
+            MESSAGE_CATEGORIES.find((c) => c.id === "small")?.lines ?? ["Hi."]
           ),
           sendAs: "text",
         });

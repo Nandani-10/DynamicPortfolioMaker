@@ -27,8 +27,9 @@ export function IntrovertMode({
   const [mode, setMode] = useState<"say" | "ask" | "here" | null>(null);
   const [line, setLine] = useState<string | null>(null);
 
+  // Statements only — the "ask something" door is where questions come from.
   const allSoftLines = MESSAGE_CATEGORIES.flatMap((category) =>
-    category.id === "deep" ? [] : category.lines
+    category.id === "start" ? [] : category.lines
   );
 
   function generate(next: "say" | "ask" | "here") {
