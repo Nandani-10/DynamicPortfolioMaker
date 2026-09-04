@@ -10,6 +10,8 @@ Built with Next.js (App Router), Firebase (Auth + Firestore), Cloudinary
 ## Features
 
 - Google sign-in (Firebase Auth), one portfolio per account
+- "Us": a separate, invite-nobody private space at `/us` for two people —
+  see [its own section](#us--the-private-space-at-us)
 - Dashboard editors for Hero, About, Education, Experience, Skills,
   Projects, Certifications, Awards, Achievements, Open Source, Blogs,
   Testimonials, Contact & Social, and Theme
@@ -172,17 +174,21 @@ app/
   onboarding/           Username claim flow (first login)
   dashboard/            Auth-guarded editor (one route per section)
   portfolio/            Public portfolio page; Hosting rewrites /{username} here
+  us/                   "Us" — the private two-person space (see below)
 components/
   hero/, sections/      Public portfolio building blocks
   effects/              Reusable animation primitives
   dashboard/            Editor shell + generic CRUD list editor
   portfolio/            Theme/nav wrappers for the public page
+  us/                   Everything the private space is made of
 lib/
   firebase/             Client SDK init
   firestore/             Firestore data access
   cloudinary/            Unsigned browser-upload helper
   themes.ts             Color preset definitions
+  us/                   Space config, Firestore access, prompt banks, drawing
 types/portfolio.ts       Shared data model
+types/us.ts              Data model for the private space
 firestore.rules          Firestore security rules
 ```
 
@@ -194,3 +200,82 @@ Each portfolio is a single Firestore document at `portfolios/{username}`
 `users/{uid}` document maps an authenticated owner to their claimed
 username. Firestore rules restrict writes to the document's `ownerUid`
 while keeping `portfolios/*` publicly readable.
+
+## "Us" — the private space at `/us`
+
+A second, self-contained app living in the same deployment: a small private
+world for exactly two people. It is built around the idea that neither person
+should have to invent something to say — a morning and a night that play as
+short films, doodles that replay stroke by stroke, moods, thoughts left to be
+found later, blind-answer games, a memory wall, countdowns, and an "I want to
+talk, but I don't know how" mode that writes the message for you.
+
+The tone is deliberately restrained: plain sentences, no declarations, no pet
+names. ⭐ is the only bit of shorthand — it stands in for whatever would
+otherwise need saying, and it is the reaction, the sticker and the sign-off.
+
+The palette follows the clock (dawn → day → evening → night) instead of a
+light/dark toggle, and every animation stands down under
+`prefers-reduced-motion`.
+
+### Locking it to two people
+
+The guest list lives in **`firestore.rules`** and nowhere else. It holds the
+SHA-256 of each address rather than the address itself, because this
+repository is public and a rules file would otherwise publish both owners'
+email addresses in plain text:
+
+```
+printf '%s' 'their@address.com' | openssl dgst -sha256 -binary | base64
+```
+
+Put the two digests in `coupleEmailHashes()`. The app is never told who is on
+the list — it tries to read the space and reports the refusal — so nothing
+identifying reaches the deployed JavaScript, and there is no client-side check
+to bypass.
+
+This is not a strong secret: someone who already suspects an address can
+confirm it by hashing it. It keeps the addresses out of search results,
+scrapers and the bundle, which is what a hash can honestly do here.
+
+**`NEXT_PUBLIC_US_PIN`** *(optional)* — a shared PIN, asked once every 12
+hours per device. A curtain for an already-unlocked phone, not a vault:
+`NEXT_PUBLIC_*` values are readable in the bundle.
+
+Photos, voice notes and memory images go through the same unsigned Cloudinary
+upload as the rest of the app; without those two env vars the space still
+works, minus media.
+
+`NEXT_PUBLIC_US_SPACE_ID` and `NEXT_PUBLIC_US_PIN` are optional repository
+secrets (**Settings → Secrets and variables → Actions**); no secret is needed
+to open the space, since access is settled by the rules.
+
+Note that pull-request previews deliberately don't deploy Firestore rules, so
+`/us` on a preview channel can sign you in but not read or write anything —
+the rules that grant the two of you access only ship when main deploys.
+
+### Data model
+
+Everything lives under one document tree so a single rules block can gate it:
+
+```
+spaces/{spaceId}
+  members/{uid}       name, avatar, colour, status, mood, presence, typing
+  messages/{id}       text · morning · night · drawing · photo · voice ·
+                      thought · mood · question · surprise, plus reactions
+  thoughts/{id}       notes left to be discovered later
+  memories/{id}       the memory-wall timeline
+  rounds/{id}         This or That / Would You Rather / Two Truths (blind)
+  days/{YYYY-MM-DD}   morning + night greetings, and the daily check-in
+```
+
+Drawings are stored as normalized stroke points rather than images, which is
+what makes the replay animation possible (and keeps them tiny).
+
+### Developing against the emulators
+
+Set `NEXT_PUBLIC_FIREBASE_EMULATORS=1` in `.env.local` and run
+`firebase emulators:start --only auth,firestore` — the client then talks to
+auth on `:9099` and Firestore on `:8080`, so work in progress never touches
+real data. The emulator loads `firestore.rules`, so access rules are exercised
+too.

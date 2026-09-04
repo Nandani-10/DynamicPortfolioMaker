@@ -1,8 +1,17 @@
 "use client";
 
 import { type FirebaseApp, getApps, initializeApp } from "firebase/app";
-import { type Auth, GoogleAuthProvider, getAuth } from "firebase/auth";
-import { type Firestore, getFirestore } from "firebase/firestore";
+import {
+  type Auth,
+  GoogleAuthProvider,
+  connectAuthEmulator,
+  getAuth,
+} from "firebase/auth";
+import {
+  type Firestore,
+  connectFirestoreEmulator,
+  getFirestore,
+} from "firebase/firestore";
 
 // Firebase's SDK throws synchronously from getAuth() if apiKey is falsy, which
 // would crash prerendering/build in any environment without real env vars
@@ -31,3 +40,15 @@ export const firebaseApp = getFirebaseApp();
 export const auth: Auth = getAuth(firebaseApp);
 export const db: Firestore = getFirestore(firebaseApp);
 export const googleProvider = new GoogleAuthProvider();
+
+// Local development against `firebase emulators:start`, so a work-in-progress
+// feature never writes to the real project. Opt-in only, and never in a
+// production build: the flag has to be set explicitly at build time.
+if (
+  process.env.NEXT_PUBLIC_FIREBASE_EMULATORS === "1" &&
+  typeof window !== "undefined"
+) {
+  const host = window.location.hostname;
+  connectAuthEmulator(auth, `http://${host}:9099`, { disableWarnings: true });
+  connectFirestoreEmulator(db, host, 8080);
+}

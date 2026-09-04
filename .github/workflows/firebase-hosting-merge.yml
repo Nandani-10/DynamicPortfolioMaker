@@ -84,6 +84,10 @@ jobs:
           NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
           NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET }}
           NEXT_PUBLIC_GEMINI_API_KEY: ${{ secrets.NEXT_PUBLIC_GEMINI_API_KEY }}
+          # The private space at /us. Both optional: who may enter is decided
+          # by firestore.rules, not by anything set here.
+          NEXT_PUBLIC_US_SPACE_ID: ${{ secrets.NEXT_PUBLIC_US_SPACE_ID }}
+          NEXT_PUBLIC_US_PIN: ${{ secrets.NEXT_PUBLIC_US_PIN }}
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
