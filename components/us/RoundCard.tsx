@@ -105,8 +105,8 @@ export function RoundCard({ round }: { round: Round }) {
             : !theirs
               ? "Answer locked in. Waiting for them."
               : agreed
-                ? "Looks like we agree ❤️"
-                : "Okay… we need to discuss this 😂"}
+                ? "Same answer ⭐"
+                : "Okay, we need to discuss this 😂"}
       </p>
 
       {round.createdBy === uid && (

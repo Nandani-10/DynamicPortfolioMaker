@@ -16,7 +16,7 @@ export const DRAWING_COLORS = [
   "#f5f2ee",
 ];
 
-export const DRAWING_STICKERS = ["❤️", "⭐", "🌙", "☀️", "🌸", "🫶", "😭", "😂", "🐈", "☕"];
+export const DRAWING_STICKERS = ["⭐", "✦", "🌙", "☀️", "🌸", "😭", "😂", "🐈", "☕", "💤"];
 
 function applyTool(
   ctx: CanvasRenderingContext2D,

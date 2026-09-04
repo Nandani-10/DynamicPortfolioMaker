@@ -237,10 +237,8 @@ function arrivalNote(message: UsMessage): Omit<UsToast, "id"> {
       return { emoji: "☀️", title: "You received a morning sunshine", body: message.text };
     case "night":
       return { emoji: "🌙", title: "A good night landed for you", body: message.text };
-    case "hug":
-      return { emoji: "🫂", title: "Someone sent you a hug" };
     case "thought":
-      return { emoji: "💭", title: "Someone left a little thought for you" };
+      return { emoji: "💭", title: "Someone left a thought for you" };
     case "drawing":
       return { emoji: "🎨", title: "A doodle is waiting for you" };
     case "surprise":
@@ -251,13 +249,13 @@ function arrivalNote(message: UsMessage): Omit<UsToast, "id"> {
       return { emoji: "📸", title: "A photo arrived", body: message.media?.caption };
     case "mood":
       return {
-        emoji: message.mood?.emoji ?? "🫶",
+        emoji: message.mood?.emoji ?? "⭐",
         title: `Mood update: ${message.mood?.label ?? ""}`.trim(),
       };
     case "question":
       return { emoji: "💬", title: "A question for you", body: message.text };
     default:
-      return { emoji: "💌", title: "A message arrived", body: message.text };
+      return { emoji: "✉️", title: "A message arrived", body: message.text };
   }
 }
 

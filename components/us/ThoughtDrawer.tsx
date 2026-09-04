@@ -26,7 +26,7 @@ export function ThoughtDrawer() {
   return (
     <section className="us-card p-5">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="us-title text-base font-medium">💭 The thought drawer</h2>
+        <h2 className="us-title text-base font-medium">💭 Thought drawer</h2>
         <button type="button" className="us-chip text-xs" onClick={() => setWriting(true)}>
           Leave one
         </button>
@@ -49,7 +49,7 @@ export function ThoughtDrawer() {
                 aria-label="Open this thought"
                 onClick={() => {
                   setOpened(thought.id);
-                  play("hearts");
+                  play("stars");
                   discoverThought(thought.id, uid).catch(() => {});
                 }}
               >
@@ -88,7 +88,7 @@ export function ThoughtDrawer() {
             .slice(0, 12)
             .map((thought) => (
               <div key={thought.id} className="us-soft flex items-start gap-3 p-3">
-                <span className="text-sm">{thought.authorUid === uid ? "🖊️" : "💌"}</span>
+                <span className="text-sm">{thought.authorUid === uid ? "🖊️" : "✉️"}</span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm leading-snug">{thought.text}</p>
                   <p className="us-muted mt-1 text-[0.68rem]">

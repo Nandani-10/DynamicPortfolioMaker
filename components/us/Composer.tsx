@@ -206,7 +206,7 @@ export function Composer({
             active={panel === "suggest"}
             onClick={() => setPanel(panel === "suggest" ? "none" : "suggest")}
           >
-            💌 Words
+            ✉️ Words
           </PanelButton>
           <PanelButton
             active={panel === "draw"}
@@ -234,9 +234,6 @@ export function Composer({
             }}
           >
             📸 Photo
-          </PanelButton>
-          <PanelButton onClick={() => run(() => actions.sendHug(), "Hug didn't send.")}>
-            🫂 Hug
           </PanelButton>
         </div>
       </div>
@@ -281,8 +278,6 @@ function previewFor(message: UsMessage): string {
       return "a photo";
     case "voice":
       return "a voice note";
-    case "hug":
-      return "a hug";
     case "mood":
       return `feeling ${message.mood?.label ?? ""}`.trim();
     default:

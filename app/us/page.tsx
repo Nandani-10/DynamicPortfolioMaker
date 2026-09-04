@@ -77,24 +77,13 @@ export default function TodayPage() {
         <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Action emoji="☀️" label="Good morning" onClick={() => greet("morning")} />
           <Action emoji="🌙" label="Good night" onClick={() => greet("night")} />
-          <Action emoji="💌" label="Send a message" href="/us/chat" />
+          <Action emoji="✉️" label="Send a message" href="/us/chat" />
           <Action emoji="🎨" label="Draw something" href="/us/chat" />
           <Action emoji="💭" label="Random thought" onClick={() => setOverlay("thought")} />
           <Action emoji="🎁" label="Surprise me" onClick={() => setOverlay("surprise")} />
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            className="us-chip text-xs"
-            onClick={() => actions.sendHug()}
-          >
-            🫂 Wish I could hug you
-          </button>
-          <Link href="/us/play" className="us-chip text-xs">
-            🎲 Talk to me
-          </Link>
-        </div>
+        <StatusPicker compact />
       </header>
 
       {latestFromPartner && (
@@ -114,14 +103,13 @@ export default function TodayPage() {
       {waitingThoughts.length > 0 && (
         <Link href="/us/memories" className="us-card block p-5">
           <p className="text-sm">
-            💭 {waitingThoughts.length} little thought
-            {waitingThoughts.length === 1 ? "" : "s"} left for you to find.
+            💭 {waitingThoughts.length} thought
+            {waitingThoughts.length === 1 ? "" : "s"} waiting for you to find.
           </p>
         </Link>
       )}
 
       <MoodCheckIn />
-      <StatusPicker />
       <MorningStreak />
       <CountdownCard />
 
@@ -182,8 +170,6 @@ function previewOf(message: UsMessage): string {
       return message.media?.caption ?? "📸 A photo.";
     case "voice":
       return "🎙️ A voice note.";
-    case "hug":
-      return message.text ?? "🫂 A hug.";
     case "mood":
       return `${message.mood?.emoji ?? ""} Feeling ${message.mood?.label ?? ""}`.trim();
     default:

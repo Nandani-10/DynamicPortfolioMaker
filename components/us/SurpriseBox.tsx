@@ -114,11 +114,11 @@ export function SurpriseBox({ onClose }: { onClose: () => void }) {
         });
         break;
       default:
-        play("hearts");
+        play("stars");
         setSurprise({
           kind: "hidden",
           title: "Nothing to do",
-          text: "This one is just a small moment. Consider it a hidden 'I love you'.",
+          text: "This one is just a small moment. Nothing to answer.",
         });
     }
   }

@@ -1,23 +1,30 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { STATUSES } from "@/lib/us/content";
 import { setStatus } from "@/lib/us/store";
 import { useUs } from "@/components/us/UsProvider";
 import { relativeTime } from "@/lib/us/format";
 
-/** Lightweight "where am I right now" — no read receipts, no pressure. */
+/**
+ * Lightweight "where am I right now" — no read receipts, no pressure.
+ *
+ * `compact` is the version on the home screen: four common ones and a link to
+ * the rest, so the page stays a page rather than a control panel.
+ */
 export function StatusPicker({ compact }: { compact?: boolean }) {
   const { uid, me, partner } = useUs();
   const [custom, setCustom] = useState("");
   const [showCustom, setShowCustom] = useState(false);
+  const options = compact ? STATUSES.slice(0, 4) : STATUSES;
 
   return (
     <section className={compact ? "" : "us-card p-5"}>
       {!compact && <h2 className="us-title text-base font-medium">Right now</h2>}
 
       <div className="mt-3 flex flex-wrap gap-1.5">
-        {STATUSES.map((status) => (
+        {options.map((status) => (
           <button
             key={status.key}
             type="button"
@@ -35,14 +42,20 @@ export function StatusPicker({ compact }: { compact?: boolean }) {
             {status.emoji} {status.label}
           </button>
         ))}
-        <button
-          type="button"
-          className="us-chip text-xs"
-          data-active={showCustom}
-          onClick={() => setShowCustom((open) => !open)}
-        >
-          ✍️ Something else
-        </button>
+        {compact ? (
+          <Link href="/us/settings" className="us-chip text-xs">
+            More
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="us-chip text-xs"
+            data-active={showCustom}
+            onClick={() => setShowCustom((open) => !open)}
+          >
+            ✍️ Something else
+          </button>
+        )}
       </div>
 
       {showCustom && (
@@ -70,7 +83,7 @@ export function StatusPicker({ compact }: { compact?: boolean }) {
         </form>
       )}
 
-      {partner?.status && (
+      {!compact && partner?.status && (
         <p className="us-muted mt-3 text-xs">
           {partner.name}: {partner.status.emoji} {partner.status.label} ·{" "}
           {relativeTime(partner.status.at)}

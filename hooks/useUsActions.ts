@@ -11,12 +11,7 @@ import {
   type NewMessage,
 } from "@/lib/us/store";
 import { uploadToCloudinary } from "@/lib/cloudinary/client";
-import {
-  HUG_LINES,
-  MORNING_LINES,
-  NIGHT_LINES,
-  pickRandom,
-} from "@/lib/us/content";
+import { MORNING_LINES, NIGHT_LINES, pickRandom } from "@/lib/us/content";
 import type { DrawingPayload, MessageType, ReplyRef } from "@/types/us";
 
 /**
@@ -55,11 +50,6 @@ export function useUsActions() {
     },
     [send, play, uid]
   );
-
-  const sendHug = useCallback(async () => {
-    play("hug");
-    return send({ type: "hug", text: pickRandom(HUG_LINES) });
-  }, [send, play]);
 
   const sendDrawing = useCallback(
     (drawing: DrawingPayload) => send({ type: "drawing", drawing }),
@@ -122,7 +112,6 @@ export function useUsActions() {
       send,
       sendText,
       sendGreeting,
-      sendHug,
       sendDrawing,
       sendMood,
       sendThought,
@@ -133,7 +122,6 @@ export function useUsActions() {
       send,
       sendText,
       sendGreeting,
-      sendHug,
       sendDrawing,
       sendMood,
       sendThought,

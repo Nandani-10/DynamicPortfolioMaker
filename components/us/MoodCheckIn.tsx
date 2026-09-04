@@ -14,6 +14,9 @@ export function MoodCheckIn() {
   const [picked, setPicked] = useState<{ emoji: string; label: string } | null>(null);
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  // Twelve chips at once is a wall; six is a question you can answer.
+  const [showAll, setShowAll] = useState(false);
+  const moods = showAll ? MOODS : MOODS.slice(0, 6);
 
   return (
     <section className="us-card p-5">
@@ -27,7 +30,7 @@ export function MoodCheckIn() {
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
-        {MOODS.map((mood) => {
+        {moods.map((mood) => {
           const active = picked?.label === mood.label;
           return (
             <motion.button
@@ -43,6 +46,15 @@ export function MoodCheckIn() {
             </motion.button>
           );
         })}
+        {!showAll && (
+          <button
+            type="button"
+            className="us-chip text-xs"
+            onClick={() => setShowAll(true)}
+          >
+            More
+          </button>
+        )}
       </div>
 
       {picked && (

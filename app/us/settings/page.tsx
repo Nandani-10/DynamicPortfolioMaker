@@ -12,7 +12,7 @@ import { uploadToCloudinary, isCloudinaryConfigured } from "@/lib/cloudinary/cli
 import { isPinEnabled } from "@/lib/us/config";
 import type { SpecialDate } from "@/types/us";
 
-const AVATAR_EMOJI = ["🌙", "☀️", "🌸", "🫶", "🐈", "🐦", "🌊", "🍁", "⭐", "🍵"];
+const AVATAR_EMOJI = ["⭐", "🌙", "☀️", "🌸", "🐈", "🐦", "🌊", "🍁", "🍵", "✦"];
 const ACCENTS = [
   "linear-gradient(135deg,#e9a17f,#d1748f)",
   "linear-gradient(135deg,#7f9fc7,#9a86c4)",
@@ -27,7 +27,7 @@ export default function SettingsPage() {
   const { play } = useEffectsLayer();
   const [name, setName] = useState("");
   const [dates, setDates] = useState<SpecialDate[]>([]);
-  const [draft, setDraft] = useState({ label: "", date: "", emoji: "💗" });
+  const [draft, setDraft] = useState({ label: "", date: "", emoji: "⭐" });
   const [uploading, setUploading] = useState(false);
   const [notifState, setNotifState] = useState<string>("default");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -216,7 +216,7 @@ export default function SettingsPage() {
                 emoji: draft.emoji,
               },
             ]);
-            setDraft({ label: "", date: "", emoji: "💗" });
+            setDraft({ label: "", date: "", emoji: "⭐" });
           }}
         >
           <input
@@ -300,8 +300,8 @@ export default function SettingsPage() {
             const next = secretTaps + 1;
             setSecretTaps(next);
             if (next % 3 === 0) {
-              play("hearts");
-              notify({ emoji: "❤️", title: "I love you. That's all." });
+              play("stars");
+              notify({ emoji: "⭐", title: "You found it again." });
             }
           }}
         >

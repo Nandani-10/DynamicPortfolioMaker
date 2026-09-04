@@ -49,7 +49,7 @@ export function ThoughtComposer({ onClose }: { onClose: () => void }) {
           }
         }}
       >
-        <h2 className="us-title text-base font-medium">Leave a little thought</h2>
+        <h2 className="us-title text-base font-medium">Leave a thought</h2>
         <p className="us-muted mt-1 text-sm">
           No reply needed. They&apos;ll find it whenever they open the drawer.
         </p>

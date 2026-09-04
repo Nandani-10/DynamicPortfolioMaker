@@ -38,7 +38,7 @@ export function DailyCheckIn() {
   return (
     <section className="us-card p-5">
       <p className="us-muted text-[0.65rem] uppercase tracking-[0.2em]">
-        Today&apos;s little check-in
+        Today&apos;s check-in
       </p>
       <h2 className="us-title mt-2 text-lg font-medium leading-snug">{question}</h2>
 

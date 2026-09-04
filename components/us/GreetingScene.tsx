@@ -92,8 +92,8 @@ export function GreetingScene({
 
   const replies = isMorning ? MORNING_REPLIES : NIGHT_REPLIES;
   const reactions = isMorning
-    ? ["☀️", "❤️", "🫂", "🥹", "😴"]
-    : ["🌙", "❤️", "🫂", "🥹", "😴"];
+    ? ["☀️", "⭐", "🥹", "😌", "😴"]
+    : ["🌙", "⭐", "🥹", "😌", "😴"];
 
   return (
     <motion.div

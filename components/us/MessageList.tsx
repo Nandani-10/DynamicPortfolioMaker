@@ -177,7 +177,6 @@ export function MessageList({
 function repliesFor(message: UsMessage): string[] {
   if (message.type === "morning") return MORNING_REPLIES;
   if (message.type === "night") return NIGHT_REPLIES;
-  if (message.type === "hug") return ["🫂 Back at you", "I needed that", "Come here"];
   if (message.type === "question") return ["Let me think", "Answering now", "Ask me later?"];
   return QUICK_REPLIES;
 }

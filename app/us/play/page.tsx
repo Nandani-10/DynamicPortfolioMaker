@@ -6,7 +6,6 @@ import { useUs } from "@/components/us/UsProvider";
 import { useUsActions } from "@/hooks/useUsActions";
 import { DailyCheckIn } from "@/components/us/DailyCheckIn";
 import { RoundCard } from "@/components/us/RoundCard";
-import { SuggestionSheet } from "@/components/us/SuggestionSheet";
 import { createRound, answerRound } from "@/lib/us/store";
 import {
   CONVERSATION_STARTERS,
@@ -65,8 +64,8 @@ export default function PlayPage() {
       </header>
 
       <section className="us-card p-5">
-        <h2 className="us-title text-base font-medium">🎲 Talk to me</h2>
-        <p className="us-muted mt-1 text-sm">One question at a time. Ask, or just read.</p>
+        <h2 className="us-title text-base font-medium">Wanna talk?</h2>
+        <p className="us-muted mt-1 text-sm">One question at a time. Ask it, or just read it.</p>
 
         <motion.div
           key={starter ?? "empty"}
@@ -75,7 +74,7 @@ export default function PlayPage() {
           className="us-soft mt-4 p-4"
         >
           <p className="us-title text-base leading-snug">
-            {starter ?? "Tap below and I'll think of something."}
+            {starter ?? "Tap below and I'll think of something to ask."}
           </p>
         </motion.div>
 
@@ -225,18 +224,6 @@ export default function PlayPage() {
         </div>
       )}
 
-      <section className="us-card p-5">
-        <h2 className="us-title text-base font-medium">Still nothing to say?</h2>
-        <p className="us-muted mt-1 text-sm">Borrow a line. Nobody has to know.</p>
-        <div className="mt-2">
-          <SuggestionSheet
-            compact
-            onSend={async (text) => {
-              await actions.sendText(text);
-            }}
-          />
-        </div>
-      </section>
     </div>
   );
 }

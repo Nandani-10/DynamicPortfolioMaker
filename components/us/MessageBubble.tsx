@@ -22,12 +22,11 @@ interface MessageBubbleProps {
 }
 
 const TYPE_LABEL: Partial<Record<UsMessage["type"], string>> = {
-  thought: "A little thought",
-  surprise: "A surprise",
-  question: "A question",
-  answer: "An answer",
-  hug: "A hug",
-  memory: "A memory",
+  thought: "Thought",
+  surprise: "Surprise",
+  question: "Question",
+  answer: "Answer",
+  memory: "Memory",
   checkin: "Check-in",
 };
 
@@ -252,9 +251,6 @@ function MessageBody({
         </div>
       );
 
-    case "hug":
-      return <HugCard text={message.text ?? "A hug"} fresh={fresh} />;
-
     case "mood":
       return (
         <div className="us-bubble flex items-center gap-2.5" data-mine={mine}>
@@ -298,45 +294,4 @@ function MessageBody({
         </div>
       );
   }
-}
-
-/** Two little shapes that lean into each other, once. */
-function HugCard({ text, fresh }: { text: string; fresh: boolean }) {
-  return (
-    <div
-      className="w-[min(78vw,20rem)] rounded-[1.35rem] border px-5 py-4 text-center"
-      style={{
-        borderColor: "var(--us-border)",
-        background: "color-mix(in srgb, var(--us-accent-2) 16%, var(--us-surface))",
-      }}
-    >
-      <div className="mb-2 flex items-center justify-center">
-        <motion.span
-          className="text-2xl"
-          initial={fresh ? { x: -22 } : false}
-          animate={{ x: -6 }}
-          transition={{ type: "spring", stiffness: 120, damping: 12, delay: 0.2 }}
-        >
-          🧍
-        </motion.span>
-        <motion.span
-          className="text-lg"
-          initial={fresh ? { opacity: 0, scale: 0.4 } : false}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.9 }}
-        >
-          🫂
-        </motion.span>
-        <motion.span
-          className="text-2xl"
-          initial={fresh ? { x: 22 } : false}
-          animate={{ x: 6 }}
-          transition={{ type: "spring", stiffness: 120, damping: 12, delay: 0.2 }}
-        >
-          🧍
-        </motion.span>
-      </div>
-      <p className="text-sm">{text}</p>
-    </div>
-  );
 }

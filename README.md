@@ -206,9 +206,13 @@ while keeping `portfolios/*` publicly readable.
 A second, self-contained app living in the same deployment: a small private
 world for exactly two people. It is built around the idea that neither person
 should have to invent something to say — a morning and a night that play as
-little films, doodles that replay stroke by stroke, moods, thoughts left to be
+short films, doodles that replay stroke by stroke, moods, thoughts left to be
 found later, blind-answer games, a memory wall, countdowns, and an "I want to
 talk, but I don't know how" mode that writes the message for you.
+
+The tone is deliberately restrained: plain sentences, no declarations, no pet
+names. ⭐ is the only bit of shorthand — it stands in for whatever would
+otherwise need saying, and it is the reaction, the sticker and the sign-off.
 
 The palette follows the clock (dawn → day → evening → night) instead of a
 light/dark toggle, and every animation stands down under
@@ -237,7 +241,7 @@ Everything lives under one document tree so a single rules block can gate it:
 ```
 spaces/{spaceId}
   members/{uid}       name, avatar, colour, status, mood, presence, typing
-  messages/{id}       text · morning · night · hug · drawing · photo · voice ·
+  messages/{id}       text · morning · night · drawing · photo · voice ·
                       thought · mood · question · surprise, plus reactions
   thoughts/{id}       notes left to be discovered later
   memories/{id}       the memory-wall timeline

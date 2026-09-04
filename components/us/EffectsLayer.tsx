@@ -12,20 +12,16 @@ import { useReducedMotion } from "framer-motion";
 import { EASTER_EGG_WORDS } from "@/lib/us/content";
 
 export type EffectName =
-  | "hearts"
   | "stars"
   | "sun"
-  | "hug"
   | "confetti"
   | "petals"
   | "rain"
   | "steam";
 
 const EFFECT_EMOJI: Record<EffectName, string[]> = {
-  hearts: ["❤️", "🤍", "💗"],
-  stars: ["✦", "✧", "⭐"],
+  stars: ["⭐", "✦", "✧"],
   sun: ["☀️", "✨"],
-  hug: ["🫂", "🤍"],
   confetti: ["🎉", "✨", "🎊"],
   petals: ["🌸", "🌷"],
   rain: ["💧"],

@@ -25,7 +25,7 @@ export function UsToasts() {
             onClick={() => dismissToast(toast.id)}
             className="us-card pointer-events-auto flex w-full max-w-sm items-center gap-3 px-4 py-3 text-left"
           >
-            <span className="text-xl">{toast.emoji ?? "💌"}</span>
+            <span className="text-xl">{toast.emoji ?? "✉️"}</span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">{toast.title}</span>
               {toast.body && (

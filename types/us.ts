@@ -4,7 +4,6 @@ export type MessageType =
   | "text"
   | "morning"
   | "night"
-  | "hug"
   | "drawing"
   | "thought"
   | "mood"
