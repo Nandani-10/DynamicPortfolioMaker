@@ -234,6 +234,16 @@ Photos, voice notes and memory images go through the same unsigned Cloudinary
 upload as the rest of the app; without those two env vars the space still
 works, minus media.
 
+For the deployed site, `NEXT_PUBLIC_US_EMAILS` (and optionally
+`NEXT_PUBLIC_US_SPACE_ID` / `NEXT_PUBLIC_US_PIN`) go in
+**Settings → Secrets and variables → Actions**, like the other
+`NEXT_PUBLIC_*` values. They are optional: unset, `/us` just shows its setup
+screen and nothing else on the site changes.
+
+Note that pull-request previews deliberately don't deploy Firestore rules, so
+`/us` on a preview channel can sign you in but not read or write anything —
+the rules that grant the two of you access only ship when main deploys.
+
 ### Data model
 
 Everything lives under one document tree so a single rules block can gate it:
